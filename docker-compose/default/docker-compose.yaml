@@ -1,0 +1,48 @@
+version: "3.8"
+services:
+  DB_PRODUCT:
+    container_name: toko_online_product_DB
+    image: mongo:6.0-jammy
+    restart: always
+    shm_size: 256mb
+    ports:
+      - "27017:27017"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+        reservations:
+          cpus: "0.2"
+          memory: 128M
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=product
+      - MONGO_INITDB_ROOT_PASSWORD=product
+      - MONGO_INITDB_DATABASE=product
+    volumes:
+      - product_data:/data/db
+  DB_ORDER:
+    container_name: toko_online_order_DB
+    image: postgres:16-alpine
+    restart: always
+    shm_size: 256mb
+    ports:
+      - "5432:5432"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+        reservations:
+          cpus: "0.2"
+          memory: 128M
+    environment:
+      - POSTGRES_PASSWORD=order
+      - POSTGRES_USER=order
+      - POSTGRES_DB=order
+    volumes:
+      - order_data:/var/lib/postgresql/data
+
+volumes:
+  product_data:
+  order_data:

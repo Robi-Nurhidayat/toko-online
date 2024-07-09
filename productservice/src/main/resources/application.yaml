@@ -1,0 +1,12 @@
+server:
+  port: 8000
+spring:
+  application:
+    name: productservice
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: product
+      username: product
+      password: product
