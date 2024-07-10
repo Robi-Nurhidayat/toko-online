@@ -1,7 +1,10 @@
 package com.pgwaktupagi.productservice.service.impl;
 
+import com.pgwaktupagi.productservice.dto.ProductDTO;
 import com.pgwaktupagi.productservice.entity.Product;
 import com.pgwaktupagi.productservice.exception.ProductAlreadyExistsException;
+import com.pgwaktupagi.productservice.exception.ResourceNotFoundException;
+import com.pgwaktupagi.productservice.mapper.ProductMapper;
 import com.pgwaktupagi.productservice.repository.ProductRepository;
 import com.pgwaktupagi.productservice.service.IProductService;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +21,15 @@ public class ProductServiceImpl implements IProductService {
     @Override
     public List<Product> getAllProduct() {
         return productRepository.findAll();
+    }
+
+    @Override
+    public ProductDTO fetchProduct(String name) {
+        Product product = productRepository.findByName(name).orElseThrow(
+                () -> new ResourceNotFoundException("Product", "name", name)
+        );
+
+        return ProductMapper.mapToProductDTO(product,new ProductDTO());
     }
 
     @Override
