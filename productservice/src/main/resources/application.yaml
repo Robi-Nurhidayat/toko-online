@@ -10,3 +10,4 @@ spring:
       database: product
       username: product
       password: product
+      authentication-database: admin

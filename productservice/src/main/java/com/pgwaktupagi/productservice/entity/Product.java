@@ -2,15 +2,20 @@ package com.pgwaktupagi.productservice.entity;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collection = "users")
+import java.time.LocalDateTime;
+
+@Document("products")
 @Setter @Getter
 public class Product {
 
     @Id
-    private Long id;
+    private String id;
 
     private String name;
 
@@ -19,4 +24,12 @@ public class Product {
     private Integer stock;
 
     private String description;
+
+    @CreatedDate
+    private LocalDateTime createdAt;
+
+    @LastModifiedDate
+    private LocalDateTime updatedAt;
+
+
 }
