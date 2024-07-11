@@ -13,8 +13,8 @@ public interface IProductService {
 
     Product createProduct(Product product);
 
-    Product updateProduct(String productId);
+    Product updateProduct(ProductDTO productDTO);
 
-    void deleteProduct(String productId);
+    boolean deleteProduct(String productId);
 
 }

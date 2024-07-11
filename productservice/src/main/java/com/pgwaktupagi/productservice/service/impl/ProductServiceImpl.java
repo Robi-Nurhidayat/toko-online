@@ -9,6 +9,7 @@ import com.pgwaktupagi.productservice.repository.ProductRepository;
 import com.pgwaktupagi.productservice.service.IProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -33,6 +34,7 @@ public class ProductServiceImpl implements IProductService {
     }
 
     @Override
+    @Transactional
     public Product createProduct(Product product) {
         Optional<Product> optionalProduct = productRepository.findByName(product.getName());
         if (optionalProduct.isPresent()) {
@@ -42,17 +44,28 @@ public class ProductServiceImpl implements IProductService {
     }
 
     @Override
-    public Product updateProduct(String productId) {
-//        Product findProductById = productRepository.findById(productId).orElseThrow(() -> new RuntimeException("not found"));
-//
-//        if (!findProductById) {
-//            return new RuntimeException("not found");
-//        }
-        return null;
+    @Transactional
+    public Product updateProduct(ProductDTO productDTO) {
+
+        Product product = productRepository.findById(productDTO.getId()).orElseThrow(
+                () -> new ResourceNotFoundException("Product", "id", productDTO.getId())
+        );
+
+        ProductMapper.mapToProduct(productDTO, product);
+        return productRepository.save(product);
+
+
     }
 
     @Override
-    public void deleteProduct(String productId) {
-        productRepository.deleteById(productId);
+    public boolean deleteProduct(String productId) {
+
+        Product product = productRepository.findById(productId).orElseThrow(
+                () -> new ResourceNotFoundException("Product", "id", productId)
+        );
+
+        productRepository.deleteById(product.getId());
+
+        return true;
     }
 }

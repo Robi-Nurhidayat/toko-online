@@ -17,4 +17,6 @@ public class ProductDTO {
     private Integer stock;
 
     private String description;
+
+    private String images;
 }

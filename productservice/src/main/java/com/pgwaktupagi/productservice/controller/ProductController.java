@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -52,10 +53,28 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseProduct(ProductConstants.STATUS_201,ProductConstants.MESSAGE_201,newProduct));
     }
 
-    @DeleteMapping("/product/{productId}")
-    public ResponseEntity<ResponseProduct> deleteProduct(@PathVariable("productId") String productId){
-        productService.deleteProduct(productId);
+    @DeleteMapping("/product")
+    public ResponseEntity<ResponseProduct> deleteProduct(@RequestParam String productId){
+        boolean isDeleted = productService.deleteProduct(productId);
 
-        return ResponseEntity.status(HttpStatus.OK).body(new ResponseProduct(HttpStatus.OK.toString(),"Success delete product", ""));
+        if (isDeleted) {
+            return ResponseEntity.status(HttpStatus.OK).body(new ResponseProduct(HttpStatus.OK.toString(),"Success delete product", ""));
+        }else {
+            return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(new ResponseProduct(ProductConstants.STATUS_417,ProductConstants.MESSAGE_417_DELETE, ""));
+        }
+
+    }
+
+    @PutMapping("/product")
+    public ResponseEntity<ResponseProduct> updateProduct(@RequestBody ProductDTO productDTO) {
+        Product product = productService.updateProduct(productDTO);
+
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseProduct(ProductConstants.STATUS_200,ProductConstants.MESSAGE_200,product));
+    }
+
+    @PostMapping("/single/upload")
+    public ResponseEntity<String> fileUploading(@RequestParam("file") MultipartFile file) {
+        // Code to save the file to a database or disk
+        return ResponseEntity.ok("Successfully uploaded the file");
     }
 }

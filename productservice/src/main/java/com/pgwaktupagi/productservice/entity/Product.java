@@ -25,6 +25,8 @@ public class Product {
 
     private String description;
 
+    private String images;
+
     @CreatedDate
     private LocalDateTime createdAt;
 
