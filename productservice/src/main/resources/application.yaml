@@ -11,12 +11,12 @@ spring:
       username: product
       password: product
       authentication-database: admin
-  servlet:
-    multipart:
-      file-size-threshold: 2KB
-      max-file-size: 200MB
-      max-request-size: 215MB
-
-product:
-  images:
-    upload-dir=/path/to/upload/directory:
+#  servlet:
+#    multipart:
+#      file-size-threshold: 2KB
+#      max-file-size: 200MB
+#      max-request-size: 215MB
+#
+#product:
+#  images:
+#    upload-dir=/path/to/upload/directory:

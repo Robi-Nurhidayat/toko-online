@@ -1,10 +1,12 @@
 package com.pgwaktupagi.productservice.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pgwaktupagi.productservice.constant.ProductConstants;
 import com.pgwaktupagi.productservice.dto.ProductDTO;
 import com.pgwaktupagi.productservice.dto.ResponseProduct;
 import com.pgwaktupagi.productservice.entity.Product;
 import com.pgwaktupagi.productservice.service.IProductService;
+import com.pgwaktupagi.productservice.service.ImageStorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -12,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -21,6 +24,7 @@ import java.util.List;
 public class ProductController {
 
     private final IProductService productService;
+    private final ImageStorageService imageStorageService;
 
     @GetMapping("/test")
     public String test() {
@@ -46,11 +50,25 @@ public class ProductController {
     }
 
 
-    @PostMapping("/product")
-    public ResponseEntity<ResponseProduct> createProduct(@RequestBody Product product) {
-        Product newProduct = productService.createProduct(product);
+    @PostMapping(value = "/product",consumes = {"multipart/form-data"})
+    public ResponseEntity<ResponseProduct> createProduct(@RequestPart("product") String productJson,
+                                                         @RequestPart("images") MultipartFile image) throws IOException {
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseProduct(ProductConstants.STATUS_201,ProductConstants.MESSAGE_201,newProduct));
+        ObjectMapper objectMapper = new ObjectMapper();
+        ProductDTO productDTO = objectMapper.readValue(productJson, ProductDTO.class);
+
+        String imageName = imageStorageService.storeImage(image);
+
+        Product product = new Product();
+        product.setName(productDTO.getName());
+        product.setPrice(productDTO.getPrice());
+        product.setStock(productDTO.getStock());
+        product.setDescription(productDTO.getDescription());
+        product.setImages(imageName);
+
+        product = productService.createProduct(product);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseProduct(ProductConstants.STATUS_201,ProductConstants.MESSAGE_201,product));
     }
 
     @DeleteMapping("/product")

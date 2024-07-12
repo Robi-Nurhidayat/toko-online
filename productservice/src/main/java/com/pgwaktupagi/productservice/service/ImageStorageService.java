@@ -13,14 +13,15 @@ import java.util.UUID;
 @Service
 public class ImageStorageService {
 
-    @Value("${product.images.upload-dir}")
-    private String uploadDir;
+
+    private final String uploadDir = "uploads/";
 
     public String storeImage(MultipartFile file) throws IOException {
-        String filename = UUID.randomUUID().toString() + "-" + file.getOriginalFilename();
-        Path filePath = Paths.get(uploadDir, filename);
-        Files.createDirectories(filePath.getParent());
-        Files.write(filePath, file.getBytes());
-        return filename;
+        if (file.isEmpty()) {
+            throw new IllegalStateException("Cannot upload empty file");
+        }
+        String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+        Files.copy(file.getInputStream(), Paths.get(uploadDir + fileName));
+        return fileName;
     }
 }
