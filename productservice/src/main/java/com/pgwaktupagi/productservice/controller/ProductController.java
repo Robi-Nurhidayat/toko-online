@@ -42,24 +42,11 @@ public class ProductController {
 
         List<Product> productList = productService.getAllProduct();
 
-        List<ProductDTO> productDTOS = productList.stream().map(product -> {
-            String downloadURL = ServletUriComponentsBuilder.fromCurrentContextPath()
-                    .path("/uploads/")
-                    .path(product.getImages())
-                    .toUriString();
-            return new ProductDTO(product.getId(),
-                    product.getName(),
-                    product.getPrice(),
-                    product.getStock(),
-                    product.getDescription(),
-                    product.getImages(),
-                    downloadURL);
-        }).collect(Collectors.toList());
 
         ResponseProduct responseProduct = new ResponseProduct();
         responseProduct.setStatusCode(HttpStatus.OK.toString());
         responseProduct.setMessage("Sukses get all data");
-        responseProduct.setData(productDTOS);
+        responseProduct.setData(productList);
         return ResponseEntity.status(HttpStatus.OK).body(responseProduct);
     }
 
@@ -74,7 +61,7 @@ public class ProductController {
 
     @PostMapping(value = "/product",consumes = {"multipart/form-data"})
     public ResponseEntity<ResponseProduct> createProduct(@RequestPart("product") String productJson,
-                                                         @RequestPart("images") MultipartFile image) throws IOException {
+                                                         @RequestPart("image") MultipartFile image) throws IOException {
 
         ObjectMapper objectMapper = new ObjectMapper();
         ProductDTO productDTO = objectMapper.readValue(productJson, ProductDTO.class);
@@ -86,6 +73,7 @@ public class ProductController {
         product.setPrice(productDTO.getPrice());
         product.setStock(productDTO.getStock());
         product.setDescription(productDTO.getDescription());
+        product.setCategory(productDTO.getCategory());
         product.setImages(imageName);
 
         product = productService.createProduct(product);
