@@ -103,6 +103,7 @@ public class ProductController {
     @PostMapping("/single/upload")
     public ResponseEntity<String> fileUploading(@RequestParam("file") MultipartFile file) {
         // Code to save the file to a database or disk
+//        adadsad
         return ResponseEntity.ok("Successfully uploaded the file");
     }
 }
