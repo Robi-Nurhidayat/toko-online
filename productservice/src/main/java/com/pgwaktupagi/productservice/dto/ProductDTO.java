@@ -18,5 +18,7 @@ public class ProductDTO {
 
     private String description;
 
-    private String images;
+    private String image;
+
+    private String imageUrl;
 }

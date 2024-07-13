@@ -7,15 +7,21 @@ import com.pgwaktupagi.productservice.dto.ResponseProduct;
 import com.pgwaktupagi.productservice.entity.Product;
 import com.pgwaktupagi.productservice.service.IProductService;
 import com.pgwaktupagi.productservice.service.ImageStorageService;
+import jakarta.annotation.Resource;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
@@ -35,12 +41,28 @@ public class ProductController {
     public ResponseEntity<ResponseProduct> getAllProduct() {
 
         List<Product> productList = productService.getAllProduct();
+
+        List<ProductDTO> productDTOS = productList.stream().map(product -> {
+            String downloadURL = ServletUriComponentsBuilder.fromCurrentContextPath()
+                    .path("/uploads/")
+                    .path(product.getImages())
+                    .toUriString();
+            return new ProductDTO(product.getId(),
+                    product.getName(),
+                    product.getPrice(),
+                    product.getStock(),
+                    product.getDescription(),
+                    product.getImages(),
+                    downloadURL);
+        }).collect(Collectors.toList());
+
         ResponseProduct responseProduct = new ResponseProduct();
         responseProduct.setStatusCode(HttpStatus.OK.toString());
         responseProduct.setMessage("Sukses get all data");
-        responseProduct.setData(productList);
+        responseProduct.setData(productDTOS);
         return ResponseEntity.status(HttpStatus.OK).body(responseProduct);
     }
+
 
     @GetMapping("/fetch")
     public ResponseEntity<ResponseProduct> fetchDetailProduct(@RequestParam String name) {
