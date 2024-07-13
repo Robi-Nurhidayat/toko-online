@@ -25,8 +25,12 @@ public class Product {
 
     private String description;
 
+<<<<<<< HEAD
     private String images;
 
+=======
+    private String category;
+>>>>>>> 73ab693 (merge)
     @CreatedDate
     private LocalDateTime createdAt;
 
