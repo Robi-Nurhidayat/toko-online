@@ -14,7 +14,7 @@ import java.util.UUID;
 public class ImageStorageService {
 
 
-    private final String uploadDir = "uploads/";
+    private final String uploadDir = "./uploads/";
 
     public String storeImage(MultipartFile file) throws IOException {
         if (file.isEmpty()) {
