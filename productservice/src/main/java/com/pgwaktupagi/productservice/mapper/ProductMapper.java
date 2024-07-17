@@ -7,7 +7,9 @@ import com.pgwaktupagi.productservice.entity.Product;
 public class ProductMapper {
 
 
+
     public static ProductDTO mapToProductDTO(Product product, ProductDTO productDTO) {
+
         productDTO.setId(product.getId());
         productDTO.setName(product.getName());
         productDTO.setPrice(product.getPrice());
@@ -15,6 +17,8 @@ public class ProductMapper {
         productDTO.setDescription(product.getDescription());
         productDTO.setCategory(product.getCategory());
         productDTO.setImage(product.getImages());
+        productDTO.setCreatedAt(product.getCreatedAt());
+        productDTO.setUpdatedAt(product.getUpdatedAt());
         return productDTO;
     }
 

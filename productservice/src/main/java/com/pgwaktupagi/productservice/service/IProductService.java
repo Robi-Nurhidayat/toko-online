@@ -9,11 +9,11 @@ import java.util.List;
 
 public interface IProductService {
 
-    List<Product> getAllProduct();
+    List<ProductDTO> getAllProduct();
 
     ProductDTO fetchProduct(String name);
 
-    Product createProduct(Product product, MultipartFile image)  throws IOException;;
+    ProductDTO createProduct(String productJson, MultipartFile image)  throws IOException;;
 
     Product updateProduct(ProductDTO productDTO);
 

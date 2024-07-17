@@ -5,6 +5,7 @@ import com.pgwaktupagi.productservice.constant.ProductConstants;
 import com.pgwaktupagi.productservice.dto.ProductDTO;
 import com.pgwaktupagi.productservice.dto.ResponseProduct;
 import com.pgwaktupagi.productservice.entity.Product;
+import com.pgwaktupagi.productservice.mapper.ProductMapper;
 import com.pgwaktupagi.productservice.service.IProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,12 +13,14 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -31,23 +34,18 @@ public class ProductController {
 
     private final IProductService productService;
 
+    private static final String UPLOAD_DIR = "uploads/";
+
+
     @GetMapping("/product")
     public ResponseEntity<ResponseProduct> getAllProduct() {
-        List<Product> productList = productService.getAllProduct();
+        List<ProductDTO> productDTOS = productService.getAllProduct();
 
-        // Update imageUrl in response
-        productList.forEach(product -> {
-            String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
-                    .path("/api/image/")
-                    .path(product.getImages())
-                    .toUriString();
-            product.setImages(fileDownloadUri);
-        });
 
         ResponseProduct responseProduct = new ResponseProduct();
         responseProduct.setStatusCode(HttpStatus.OK.toString());
         responseProduct.setMessage("Sukses get all data");
-        responseProduct.setData(productList);
+        responseProduct.setData(productDTOS);
         return ResponseEntity.status(HttpStatus.OK).body(responseProduct);
     }
 
@@ -66,26 +64,22 @@ public class ProductController {
     public ResponseEntity<ResponseProduct> createProduct(@RequestPart("product") String productJson,
                                                          @RequestParam("image") MultipartFile image) throws IOException {
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        ProductDTO productDTO = objectMapper.readValue(productJson, ProductDTO.class);
+        log.info("Received product JSON: {}", productJson);
+        log.info("Received image: {}", image.getOriginalFilename());
 
-        Product product = new Product();
-        product.setName(productDTO.getName());
-        product.setPrice(productDTO.getPrice());
-        product.setStock(productDTO.getStock());
-        product.setDescription(productDTO.getDescription());
-        product.setCategory(productDTO.getCategory());
-
-        product = productService.createProduct(product, image);
+        var productDTO = productService.createProduct(productJson, image);
 
         String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path("/api/image/")
-                .path(product.getImages())
+                .path(productDTO.getImage())
                 .toUriString();
+
         productDTO.setImageUrl(fileDownloadUri);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(new ResponseProduct(ProductConstants.STATUS_201, ProductConstants.MESSAGE_201, productDTO));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(new ResponseProduct(ProductConstants.STATUS_201, ProductConstants.MESSAGE_201, productDTO));
     }
+
 
     @DeleteMapping("/product")
     public ResponseEntity<ResponseProduct> deleteProduct(@RequestParam String productId) {
@@ -111,17 +105,36 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseProduct(ProductConstants.STATUS_200, ProductConstants.MESSAGE_200, productDTO));
     }
 
-    @GetMapping("/image/{filename}")
-    public ResponseEntity<Resource> getImage(@PathVariable String filename) throws IOException {
-        Path path = Paths.get("uploads/" + filename);
-        Resource resource = new UrlResource(path.toUri());
-        if (resource.exists() || resource.isReadable()) {
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_TYPE, Files.probeContentType(path))
-                    .body(resource);
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+    @GetMapping("/image/{filename:.+}")
+    public ResponseEntity<Resource> getFile(@PathVariable String filename) {
+        try {
+            Path file = Paths.get(UPLOAD_DIR).resolve(filename);
+            log.info("Trying to read file from path: {}", file.toString());
+            Resource resource = new UrlResource(file.toUri());
+
+            if (resource.exists() || resource.isReadable()) {
+                String contentType = Files.probeContentType(file);
+                if (contentType == null) {
+                    contentType = "application/octet-stream";
+                }
+
+                log.info("File content type: {}", contentType);
+
+                return ResponseEntity.ok()
+                        .contentType(MediaType.parseMediaType(contentType))
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
+                        .body(resource);
+            } else {
+                log.error("File not found or not readable: {}", filename);
+                throw new RuntimeException("Could not read the file!");
+            }
+        } catch (IOException e) {
+            log.error("Error reading file: {}", filename, e);
+            throw new RuntimeException("Error: " + e.getMessage());
         }
     }
+
+
+
 
 }
