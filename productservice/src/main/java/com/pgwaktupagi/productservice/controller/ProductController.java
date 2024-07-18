@@ -1,15 +1,12 @@
 package com.pgwaktupagi.productservice.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pgwaktupagi.productservice.constant.ProductConstants;
 import com.pgwaktupagi.productservice.constant.ProductDocumentation;
 import com.pgwaktupagi.productservice.dto.ErrorResponseDto;
 import com.pgwaktupagi.productservice.dto.ProductDTO;
 import com.pgwaktupagi.productservice.dto.ResponseProduct;
-import com.pgwaktupagi.productservice.dto.ResponseProductWithList;
-import com.pgwaktupagi.productservice.entity.Product;
-import com.pgwaktupagi.productservice.mapper.ProductMapper;
 import com.pgwaktupagi.productservice.service.IProductService;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -30,7 +27,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -92,7 +88,7 @@ public class ProductController {
                     content = @Content(
                             mediaType = "application/json",
                             schema = @Schema(implementation = ProductDTO.class),
-                            examples = @ExampleObject(value = ProductDocumentation.SINGLE_PRODUCT_DOC)
+                            examples = @ExampleObject(value = ProductDocumentation.FETCH_PRODUCT_DOC)
                     )
             ),
             @ApiResponse(
@@ -117,7 +113,7 @@ public class ProductController {
         productDTO.setImage(productDTO.getImage().substring(productDTO.getImage().indexOf("_")+1));
         productDTO.setImageUrl(fileDownloadUri);
 
-        return ResponseEntity.status(HttpStatus.OK).body(new ResponseProduct(ProductConstants.STATUS_201, ProductConstants.STATUS_200, productDTO));
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseProduct(ProductConstants.STATUS_200, ProductConstants.MESSAGE_200, productDTO));
     }
 
     @Operation(
@@ -130,7 +126,8 @@ public class ProductController {
                     description = "HTTP Status CREATED",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = ProductDTO.class)
+                            schema = @Schema(implementation = ProductDTO.class),
+                            examples = @ExampleObject(value = ProductDocumentation.CREATE_PRODUCT_DOC)
                     )
             ),
             @ApiResponse(
@@ -175,7 +172,9 @@ public class ProductController {
                     description = "HTTP Status OK",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = ResponseProduct.class)
+                            schema = @Schema(implementation = ResponseProduct.class),
+                            examples = @ExampleObject(value = ProductDocumentation.DELETE_PRODUCT_DOC)
+
                     )
             ),
             @ApiResponse(
@@ -183,7 +182,8 @@ public class ProductController {
                     description = "Expectation Failed",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = ErrorResponseDto.class)
+                            schema = @Schema(implementation = ErrorResponseDto.class),
+                            examples = @ExampleObject(value = ProductDocumentation.ERROR_DATA_DOC)
                     )
             ),
             @ApiResponse(
@@ -191,7 +191,8 @@ public class ProductController {
                     description = "HTTP Status Internal Server Error",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = ErrorResponseDto.class)
+                            schema = @Schema(implementation = ErrorResponseDto.class),
+                            examples = @ExampleObject(value = ProductDocumentation.ERROR_DATA_DOC)
                     )
             )
     }
@@ -215,17 +216,30 @@ public class ProductController {
     @ApiResponses({
             @ApiResponse(
                     responseCode = "200",
-                    description = "HTTP Status OK"
+                    description = "HTTP Status OK",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ProductDTO.class),
+                            examples = @ExampleObject(value = ProductDocumentation.UPDATE_PRODUCT_DOC)
+                    )
+
             ),
             @ApiResponse(
                     responseCode = "417",
-                    description = "Expectation Failed"
+                    description = "Expectation Failed",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDto.class),
+                            examples = @ExampleObject(value = ProductDocumentation.ERROR_DATA_DOC)
+                    )
             ),
             @ApiResponse(
                     responseCode = "500",
                     description = "HTTP Status Internal Server Error",
                     content = @Content(
-                            schema = @Schema(implementation = ErrorResponseDto.class)
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDto.class),
+                            examples = @ExampleObject(value = ProductDocumentation.ERROR_DATA_DOC)
                     )
             )
     }
@@ -248,6 +262,7 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseProduct(ProductConstants.STATUS_200, ProductConstants.MESSAGE_200, productDTO));
     }
 
+    @Hidden
     @GetMapping("/image/{filename:.+}")
     public ResponseEntity<Resource> getFile(@PathVariable String filename) {
         try {

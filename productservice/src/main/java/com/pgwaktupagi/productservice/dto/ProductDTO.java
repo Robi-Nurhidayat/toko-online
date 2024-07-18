@@ -43,13 +43,25 @@ public class ProductDTO {
     )
     private String description;
 
+    @Schema(
+            description = "Product Category", example = "Makanan | Minuman"
+    )
     private String category;
 
+    @Schema(
+            description = "Product image with extension jpg,jpeg,png", example = "food.jpg"
+    )
     private String image;
 
+    @Schema(
+            hidden = true,
+            description = "Product image url", example = "http://localhost:8000/api/image/123e213213_avatar.png"
+    )
     private String imageUrl;
 
+    @Schema(hidden = true)
     private LocalDateTime createdAt;
 
+    @Schema(hidden = true)
     private LocalDateTime updatedAt;
 }

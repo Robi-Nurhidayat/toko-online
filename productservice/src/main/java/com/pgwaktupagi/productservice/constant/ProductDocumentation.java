@@ -49,20 +49,61 @@ public class ProductDocumentation {
             "  ]\n" +
             "}";
 
-    public static final String SINGLE_PRODUCT_DOC = "{\n" +
+    public static final String FETCH_PRODUCT_DOC = "{\n" +
             "  \"statusCode\": \"200\",\n" +
-            "  \"message\": \"Sukses fetch data\",\n" +
+            "  \"message\": \"Success fetch data\",\n" +
             "  \"data\": {"+
             "       \"id\": \"669886f57dbcca5c5b13c8fe\",\n" +
-            "       \"name\": \"Milo minuman\",\n" +
+            "       \"name\": \"milo minuman\",\n" +
             "       \"price\": 2000,\n" +
             "       \"stock\": 2000,\n" +
             "       \"description\": \"Milo minuman enak harga 2000\",\n" +
-            "       \"category\": \"Makanan\",\n" +
+            "       \"category\": \"makanan\",\n" +
             "       \"image\": \"ai-generated-8673811_640.png\",\n" +
             "       \"imageUrl\": \"http://localhost:8000/api/image/1721272053953_ai-generated-8673811_640.png\",\n" +
             "       \"createdAt\": \"2024-07-18T10:07:33.977\",\n" +
             "       \"updatedAt\": \"2024-07-18T10:12:56.569\"\n" +
+            "    }\n" +
+            "}";
+
+    public static final String CREATE_PRODUCT_DOC = "{\n" +
+            "  \"statusCode\": \"201\",\n" +
+            "  \"message\": \"Success create data\",\n" +
+            "  \"data\": {"+
+            "       \"id\": \"669886f57dbcca5c5b13c8fe\",\n" +
+            "       \"name\": \"milo minuman\",\n" +
+            "       \"price\": 2000,\n" +
+            "       \"stock\": 2000,\n" +
+            "       \"description\": \"Milo minuman enak harga 2000\",\n" +
+            "       \"category\": \"makanan\",\n" +
+            "       \"image\": \"ai-generated-8673811_640.png\",\n" +
+            "       \"imageUrl\": \"http://localhost:8000/api/image/1721272053953_ai-generated-8673811_640.png\",\n" +
+            "       \"createdAt\": \"2024-07-18T10:07:33.977\",\n" +
+            "       \"updatedAt\": \"2024-07-18T10:12:56.569\"\n" +
+            "    }\n" +
+            "}";
+
+    public static final String UPDATE_PRODUCT_DOC = "{\n" +
+            "  \"statusCode\": \"200\",\n" +
+            "  \"message\": \"Success update data\",\n" +
+            "  \"data\": {"+
+            "       \"id\": \"669886f57dbcca5c5b13c8fe\",\n" +
+            "       \"name\": \"milo minuman\",\n" +
+            "       \"price\": 2000,\n" +
+            "       \"stock\": 2000,\n" +
+            "       \"description\": \"Milo minuman enak harga 2000\",\n" +
+            "       \"category\": \"makanan\",\n" +
+            "       \"image\": \"ai-generated-8673811_640.png\",\n" +
+            "       \"imageUrl\": \"http://localhost:8000/api/image/1721272053953_ai-generated-8673811_640.png\",\n" +
+            "       \"createdAt\": \"2024-07-18T10:07:33.977\",\n" +
+            "       \"updatedAt\": \"2024-07-18T10:12:56.569\"\n" +
+            "    }\n" +
+            "}";
+
+    public static final String DELETE_PRODUCT_DOC = "{\n" +
+            "  \"statusCode\": \"200\",\n" +
+            "  \"message\": \"Success delete data\",\n" +
+            "  \"data\": {"+
             "    }\n" +
             "}";
 

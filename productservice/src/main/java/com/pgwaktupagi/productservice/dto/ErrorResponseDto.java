@@ -9,7 +9,7 @@ import org.springframework.http.HttpStatus;
 import java.time.LocalDateTime;
 
 @Schema(
-        name = "ErrorResponse",
+        name = "Error Response",
         description = "Schema to hold error response information"
 )
 @Data
