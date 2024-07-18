@@ -35,6 +35,7 @@ public class ProductServiceImpl implements IProductService {
     @Override
     public List<ProductDTO> getAllProduct() {
         List<Product> products = new ArrayList<>();
+
         try {
             products = productRepository.findAll();
         } catch (Exception e) {
@@ -45,6 +46,7 @@ public class ProductServiceImpl implements IProductService {
         List<ProductDTO> productDTOS = new ArrayList<>();
 
         for (var product : products) {
+
             ProductDTO productDTO = new ProductDTO(
                     product.getId(),
                     product.getName(),
@@ -52,7 +54,7 @@ public class ProductServiceImpl implements IProductService {
                     product.getStock(),
                     product.getDescription(),
                     product.getCategory(),
-                    product.getImages(),
+                    product.getImage().substring(product.getImage().indexOf("_")+1),
                     null,
                     product.getCreatedAt(),
                     product.getUpdatedAt()
@@ -62,7 +64,7 @@ public class ProductServiceImpl implements IProductService {
             try {
                 String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
                         .path("/api/image/")
-                        .path(product.getImages())
+                        .path(product.getImage())
                         .toUriString();
                 productDTO.setImageUrl(fileDownloadUri);
             } catch (Exception e) {
@@ -82,6 +84,8 @@ public class ProductServiceImpl implements IProductService {
                 () -> new ResourceNotFoundException("Product", "name", name)
         );
 
+
+
         return ProductMapper.mapToProductDTO(product, new ProductDTO());
     }
 
@@ -91,9 +95,13 @@ public class ProductServiceImpl implements IProductService {
         ObjectMapper objectMapper = new ObjectMapper();
         ProductDTO productDTO = objectMapper.readValue(productJson, ProductDTO.class);
 
-        Optional<Product> optionalProduct = productRepository.findByName(productDTO.getName());
+        Optional<Product> optionalProduct = productRepository.findByName(productDTO.getName().toLowerCase());
         if (optionalProduct.isPresent()) {
             throw new ProductAlreadyExistsException("Product already exist in database " + productDTO.getName());
+        }
+
+        if (!image.isEmpty()) {
+            log.info("image di upload");
         }
 
         String fileName = System.currentTimeMillis() + "_" + image.getOriginalFilename();
@@ -103,16 +111,18 @@ public class ProductServiceImpl implements IProductService {
         Files.write(path, image.getBytes());
 
         Product product = new Product();
-        product.setName(productDTO.getName());
+        product.setName(productDTO.getName().toLowerCase());
         product.setPrice(productDTO.getPrice());
         product.setStock(productDTO.getStock());
         product.setDescription(productDTO.getDescription());
-        product.setCategory(productDTO.getCategory());
-        product.setImages(fileName);
+        product.setCategory(productDTO.getCategory().toLowerCase());
+        product.setImage(fileName);
 
         product = productRepository.save(product);
 
-        productDTO.setImage(product.getImages());
+
+        productDTO.setId(product.getId());
+        productDTO.setImage(product.getImage());
         productDTO.setCreatedAt(product.getCreatedAt());
         productDTO.setUpdatedAt(product.getUpdatedAt());
 
@@ -122,13 +132,49 @@ public class ProductServiceImpl implements IProductService {
 
     @Override
     @Transactional
-    public Product updateProduct(ProductDTO productDTO) {
+    public ProductDTO updateProduct(String productJson, MultipartFile image) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ProductDTO productDTO = objectMapper.readValue(productJson, ProductDTO.class);
+
         Product product = productRepository.findById(productDTO.getId()).orElseThrow(
                 () -> new ResourceNotFoundException("Product", "id", productDTO.getId())
         );
 
-        ProductMapper.mapToProduct(productDTO, product);
-        return productRepository.save(product);
+        // kalau sih user upload image baru, maka image yang lama harus dihapus
+        // supaya tidak memenuhi disk
+        if (!image.isEmpty()) {
+            // sekarang ada 7 image
+            Path getPathImageForDelete = Path.of("uploads/"+product.getImage());
+            if (Files.exists(getPathImageForDelete)) {
+                System.out.println("file ini ada " + getPathImageForDelete);
+                Files.deleteIfExists(getPathImageForDelete);
+            }
+
+            String fileName = System.currentTimeMillis() + "_" + image.getOriginalFilename();
+            Path path = Paths.get(UPLOAD_DIR + fileName);
+            log.info("Saving file to path: {}", path.toString());
+            Files.createDirectories(path.getParent());
+            Files.write(path, image.getBytes());
+
+            // update nama image dengan image yang baru
+            product.setImage(fileName);
+
+        }else {
+            product.setId(productDTO.getId());
+            product.setName(productDTO.getName());
+            product.setPrice(productDTO.getPrice());
+            product.setStock(productDTO.getStock());
+            product.setDescription(productDTO.getDescription());
+            product.setCategory(productDTO.getCategory());
+        }
+
+        product = productRepository.save(product);
+
+        productDTO.setImage(product.getImage());
+        productDTO.setCreatedAt(product.getCreatedAt());
+        productDTO.setUpdatedAt(product.getUpdatedAt());
+
+        return productDTO;
     }
 
     @Override

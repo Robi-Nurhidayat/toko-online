@@ -43,15 +43,16 @@ public class ProductController {
 
 
         ResponseProduct responseProduct = new ResponseProduct();
-        responseProduct.setStatusCode(HttpStatus.OK.toString());
+        responseProduct.setStatusCode(ProductConstants.STATUS_200);
         responseProduct.setMessage("Sukses get all data");
         responseProduct.setData(productDTOS);
         return ResponseEntity.status(HttpStatus.OK).body(responseProduct);
     }
 
     @GetMapping("/fetch")
-    public ResponseEntity<ResponseProduct> fetchDetailProduct(@RequestParam String name) {
+    public ResponseEntity<ResponseProduct> fetchDetailProduct(@RequestParam(value = "name") String name) throws IOException {
         ProductDTO productDTO = productService.fetchProduct(name);
+        log.info(name);
         String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path("/api/image/")
                 .path(productDTO.getImage())
@@ -75,6 +76,7 @@ public class ProductController {
                 .toUriString();
 
         productDTO.setImageUrl(fileDownloadUri);
+        productDTO.setImage(image.getOriginalFilename());
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new ResponseProduct(ProductConstants.STATUS_201, ProductConstants.MESSAGE_201, productDTO));
@@ -92,14 +94,19 @@ public class ProductController {
         }
     }
 
-    @PutMapping("/product")
-    public ResponseEntity<ResponseProduct> updateProduct(@RequestBody ProductDTO productDTO) {
-        Product product = productService.updateProduct(productDTO);
+    @PutMapping(value = "/product", consumes = {"multipart/form-data"})
+    public ResponseEntity<ResponseProduct> updateProduct(@RequestPart("product") String productJson,
+                                                         @RequestParam("image") MultipartFile image) throws IOException {
+        log.info("Received product JSON: {}", productJson);
+        log.info("Received image: {}", image.getOriginalFilename());
+
+        var productDTO = productService.updateProduct(productJson, image);
 
         String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path("/api/image/")
-                .path(product.getImages())
+                .path(productDTO.getImage())
                 .toUriString();
+
         productDTO.setImageUrl(fileDownloadUri);
 
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseProduct(ProductConstants.STATUS_200, ProductConstants.MESSAGE_200, productDTO));

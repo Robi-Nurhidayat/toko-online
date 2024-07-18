@@ -16,7 +16,7 @@ public class ProductMapper {
         productDTO.setStock(product.getStock());
         productDTO.setDescription(product.getDescription());
         productDTO.setCategory(product.getCategory());
-        productDTO.setImage(product.getImages());
+        productDTO.setImage(product.getImage());
         productDTO.setCreatedAt(product.getCreatedAt());
         productDTO.setUpdatedAt(product.getUpdatedAt());
         return productDTO;
@@ -29,7 +29,7 @@ public class ProductMapper {
         product.setStock(productDTO.getStock());
         product.setDescription(productDTO.getDescription());
         product.setCategory(productDTO.getCategory());
-        product.setImages(productDTO.getImage());
+        product.setImage(productDTO.getImage());
         return product;
     }
 }

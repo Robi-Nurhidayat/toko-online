@@ -11,11 +11,11 @@ public interface IProductService {
 
     List<ProductDTO> getAllProduct();
 
-    ProductDTO fetchProduct(String name);
+    ProductDTO fetchProduct(String name) throws IOException;
 
     ProductDTO createProduct(String productJson, MultipartFile image)  throws IOException;;
 
-    Product updateProduct(ProductDTO productDTO);
+    ProductDTO updateProduct(String productJson, MultipartFile image) throws IOException;
 
     boolean deleteProduct(String productId);
 
