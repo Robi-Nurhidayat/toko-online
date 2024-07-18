@@ -2,11 +2,21 @@ package com.pgwaktupagi.productservice.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pgwaktupagi.productservice.constant.ProductConstants;
+import com.pgwaktupagi.productservice.constant.ProductDocumentation;
+import com.pgwaktupagi.productservice.dto.ErrorResponseDto;
 import com.pgwaktupagi.productservice.dto.ProductDTO;
 import com.pgwaktupagi.productservice.dto.ResponseProduct;
+import com.pgwaktupagi.productservice.dto.ResponseProductWithList;
 import com.pgwaktupagi.productservice.entity.Product;
 import com.pgwaktupagi.productservice.mapper.ProductMapper;
 import com.pgwaktupagi.productservice.service.IProductService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
@@ -26,6 +36,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
+@Tag(
+        name = "CRUD REST APIs for Products in Toko Online",
+        description = "CRUD REST APIs in Toko Online to CREATE, UPDATE, FETCH AND DELETE product details"
+)
+
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
@@ -37,6 +52,22 @@ public class ProductController {
     private static final String UPLOAD_DIR = "uploads/";
 
 
+
+    @Operation(summary = "Get All Product REST API", description = "REST API to fetch all product details")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "HTTP Status OK",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ResponseProduct.class),
+                            examples = @ExampleObject(value = ProductDocumentation.GET_ALL_DATA_DOC))
+            ),
+            @ApiResponse(responseCode = "500", description = "HTTP Status Internal Server Error",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDto.class),
+                            examples = @ExampleObject(value = ProductDocumentation.ERROR_DATA_DOC)
+                    )
+            )
+    })
     @GetMapping("/product")
     public ResponseEntity<ResponseProduct> getAllProduct() {
         List<ProductDTO> productDTOS = productService.getAllProduct();
@@ -49,6 +80,32 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.OK).body(responseProduct);
     }
 
+
+    @Operation(
+            summary = "Fetch Product REST API",
+            description = "REST API to fetch Product"
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "HTTP Status OK",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ProductDTO.class),
+                            examples = @ExampleObject(value = ProductDocumentation.SINGLE_PRODUCT_DOC)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "HTTP Status Internal Server Error",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDto.class),
+                            examples = @ExampleObject(value = ProductDocumentation.ERROR_DATA_DOC)
+                    )
+            )
+    }
+    )
     @GetMapping("/fetch")
     public ResponseEntity<ResponseProduct> fetchDetailProduct(@RequestParam(value = "name") String name) throws IOException {
         ProductDTO productDTO = productService.fetchProduct(name);
@@ -63,6 +120,29 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseProduct(ProductConstants.STATUS_201, ProductConstants.STATUS_200, productDTO));
     }
 
+    @Operation(
+            summary = "Create New Product REST API",
+            description = "REST API to create new Product Toko Online"
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "HTTP Status CREATED",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ProductDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "HTTP Status Internal Server Error",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDto.class)
+                    )
+            )
+    }
+    )
     @PostMapping(value = "/product", consumes = {"multipart/form-data"})
     public ResponseEntity<ResponseProduct> createProduct(@RequestPart("product") String productJson,
                                                          @RequestParam("image") MultipartFile image) throws IOException {
@@ -85,6 +165,37 @@ public class ProductController {
     }
 
 
+    @Operation(
+            summary = "Delete Product REST API",
+            description = "REST API to delete Product"
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "HTTP Status OK",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ResponseProduct.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "417",
+                    description = "Expectation Failed",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDto.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "HTTP Status Internal Server Error",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ErrorResponseDto.class)
+                    )
+            )
+    }
+    )
     @DeleteMapping("/product")
     public ResponseEntity<ResponseProduct> deleteProduct(@RequestParam String productId) {
         boolean isDeleted = productService.deleteProduct(productId);
@@ -96,6 +207,29 @@ public class ProductController {
         }
     }
 
+
+    @Operation(
+            summary = "Update Product Details REST API",
+            description = "REST API to update Product Based on ID"
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "HTTP Status OK"
+            ),
+            @ApiResponse(
+                    responseCode = "417",
+                    description = "Expectation Failed"
+            ),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "HTTP Status Internal Server Error",
+                    content = @Content(
+                            schema = @Schema(implementation = ErrorResponseDto.class)
+                    )
+            )
+    }
+    )
     @PutMapping(value = "/product", consumes = {"multipart/form-data"})
     public ResponseEntity<ResponseProduct> updateProduct(@RequestPart("product") String productJson,
                                                          @RequestParam("image") MultipartFile image) throws IOException {
