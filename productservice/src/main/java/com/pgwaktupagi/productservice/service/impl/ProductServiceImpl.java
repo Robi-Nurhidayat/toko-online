@@ -161,15 +161,17 @@ public class ProductServiceImpl implements IProductService {
 
         }else {
             product.setId(productDTO.getId());
-            product.setName(productDTO.getName());
+            product.setName(productDTO.getName().toLowerCase());
             product.setPrice(productDTO.getPrice());
             product.setStock(productDTO.getStock());
             product.setDescription(productDTO.getDescription());
-            product.setCategory(productDTO.getCategory());
+            product.setCategory(productDTO.getCategory().toLowerCase());
         }
 
         product = productRepository.save(product);
 
+        productDTO.setName(productDTO.getName().toLowerCase());
+        productDTO.setCategory(productDTO.getCategory().toLowerCase());
         productDTO.setImage(product.getImage());
         productDTO.setCreatedAt(product.getCreatedAt());
         productDTO.setUpdatedAt(product.getUpdatedAt());

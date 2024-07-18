@@ -57,7 +57,9 @@ public class ProductController {
                 .path("/api/image/")
                 .path(productDTO.getImage())
                 .toUriString();
+        productDTO.setImage(productDTO.getImage().substring(productDTO.getImage().indexOf("_")+1));
         productDTO.setImageUrl(fileDownloadUri);
+
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseProduct(ProductConstants.STATUS_201, ProductConstants.STATUS_200, productDTO));
     }
 
