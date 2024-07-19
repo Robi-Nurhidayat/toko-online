@@ -1,11 +1,13 @@
 package com.pgwaktupagi.productservice.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pgwaktupagi.productservice.constant.ProductConstants;
 import com.pgwaktupagi.productservice.constant.ProductDocumentation;
 import com.pgwaktupagi.productservice.dto.ErrorResponseDto;
 import com.pgwaktupagi.productservice.dto.ProductDTO;
 import com.pgwaktupagi.productservice.dto.ResponseProduct;
 import com.pgwaktupagi.productservice.service.IProductService;
+import com.pgwaktupagi.productservice.utils.CustomeError;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -14,14 +16,17 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -41,9 +46,13 @@ import java.util.List;
 @RequestMapping("/api")
 @RequiredArgsConstructor
 @Slf4j
+@Validated
 public class ProductController {
 
     private final IProductService productService;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     private static final String UPLOAD_DIR = "uploads/";
 
@@ -141,12 +150,22 @@ public class ProductController {
     }
     )
     @PostMapping(value = "/product", consumes = {"multipart/form-data"})
-    public ResponseEntity<ResponseProduct> createProduct(@RequestPart("product") String productJson,
+    public ResponseEntity<ResponseProduct> createProduct(@Valid  @RequestPart("product") String productJson,
                                                          @RequestParam("image") MultipartFile image) throws IOException {
 
-        log.info("Received product JSON: {}", productJson);
-        log.info("Received image: {}", image.getOriginalFilename());
+        ObjectMapper objectMapper = new ObjectMapper();
+        ProductDTO productDTOJSON;
 
+        try {
+            productDTOJSON = objectMapper.readValue(productJson, ProductDTO.class);
+        } catch (IOException e) {
+            return ResponseEntity.badRequest().body(new ResponseProduct("400", "Invalid JSON format", null));
+        }
+
+        ResponseEntity<ResponseProduct> responseProductCustomeError = CustomeError.ValidationErrorFieldCustome(productDTOJSON);
+        if (responseProductCustomeError != null) {
+            return responseProductCustomeError;
+        }
         var productDTO = productService.createProduct(productJson, image);
 
         String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
@@ -245,7 +264,7 @@ public class ProductController {
     }
     )
     @PutMapping(value = "/product", consumes = {"multipart/form-data"})
-    public ResponseEntity<ResponseProduct> updateProduct(@RequestPart("product") String productJson,
+    public ResponseEntity<ResponseProduct> updateProduct(@Valid @RequestPart("product") String productJson,
                                                          @RequestParam("image") MultipartFile image) throws IOException {
         log.info("Received product JSON: {}", productJson);
         log.info("Received image: {}", image.getOriginalFilename());
@@ -291,6 +310,7 @@ public class ProductController {
             throw new RuntimeException("Error: " + e.getMessage());
         }
     }
+
 
 
 

@@ -1,6 +1,10 @@
 package com.pgwaktupagi.productservice.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,26 +27,27 @@ public class ProductDTO {
     )
     private String id;
 
-    @Schema(
-            description = "Product name", example = "Fried Chicken"
-    )
+    @NotEmpty(message = "Product name cannot be null")
+    @Schema(description = "Product name", example = "Fried Chicken")
     private String name;
 
-    @Schema(
-            description = "Product Price", example = "8000"
-    )
+    @NotEmpty(message = "Product price cannot be null")
+    @Min(value = 0, message = "Product price must be greater than or equal to 0")
+    @Schema(description = "Product Price", example = "8000")
     private Integer price;
 
-    @Schema(
-            description = "Product Stock", example = "10"
-    )
+    @NotEmpty(message = "Product stock cannot be null")
+    @Min(value = 0, message = "Product stock must be greater than or equal to 0")
+    @Schema(description = "Product Stock", example = "10")
     private Integer stock;
 
+    @NotNull(message = "Product description cannot be null")
     @Schema(
             description = "Product Description", example = "Fried Chicken is ,,,,"
     )
     private String description;
 
+    @NotEmpty(message = "Product category cannot be null")
     @Schema(
             description = "Product Category", example = "Makanan | Minuman"
     )
