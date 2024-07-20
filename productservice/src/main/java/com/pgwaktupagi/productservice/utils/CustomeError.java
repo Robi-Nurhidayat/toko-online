@@ -14,6 +14,10 @@ public class CustomeError {
 
         if (productDTO.getName() == null || productDTO.getName().isBlank()) {
             validationErrors.put("name", "Name is required");
+        } else if (productDTO.getName().length() <= 3) {
+            validationErrors.put("name","Product name must be greather than 3 characters");
+        }else if (productDTO.getName() instanceof String != true){
+            validationErrors.put("name","Invalid format product name, please enter correct product name");
         }
         if (productDTO.getPrice() == null) {
             validationErrors.put("price", "Price is required");
