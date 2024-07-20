@@ -6,6 +6,8 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class CustomeError {
 
@@ -18,6 +20,8 @@ public class CustomeError {
             validationErrors.put("name","Product name must be greather than 3 characters");
         }else if (productDTO.getName() instanceof String != true){
             validationErrors.put("name","Invalid format product name, please enter correct product name");
+        }else if (validationStringToInteger(productDTO.getName())) {
+            validationErrors.put("name","Invalid format product name, product name must be start with alpabet not number");
         }
         if (productDTO.getPrice() == null) {
             validationErrors.put("price", "Price is required");
@@ -37,5 +41,18 @@ public class CustomeError {
         }
 
         return null;
+    }
+
+    // metode ini digunakan untuk check apakah product name di input dengan tipe data number
+    private static boolean validationStringToInteger(String productName) {
+
+        String regex = "^[0-9].*";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(productName);
+
+        if (matcher.matches()) {
+            return true;
+        }
+        return false;
     }
 }
