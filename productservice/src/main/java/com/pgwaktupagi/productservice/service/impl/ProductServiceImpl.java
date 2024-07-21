@@ -30,6 +30,7 @@ public class ProductServiceImpl implements IProductService {
 
     private static final String UPLOAD_DIR = "uploads/";
     private final ProductRepository productRepository;
+    private final long MAX_IMAGE_SIZE = 1 * 1024 * 1024;
 
 
     @Override
@@ -100,9 +101,6 @@ public class ProductServiceImpl implements IProductService {
             throw new ProductAlreadyExistsException("Product already exist in database " + productDTO.getName());
         }
 
-        if (!image.isEmpty()) {
-            log.info("image di upload");
-        }
 
         String fileName = System.currentTimeMillis() + "_" + image.getOriginalFilename();
         Path path = Paths.get(UPLOAD_DIR + fileName);
