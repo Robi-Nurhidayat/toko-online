@@ -14,6 +14,7 @@ public class CustomeError {
     public static ResponseEntity<ResponseProduct> ValidationErrorFieldCustome(ProductDTO productDTO) {
         Map<String, String> validationErrors = new HashMap<>();
 
+        // validation for product name
         if (productDTO.getName() == null || productDTO.getName().isBlank()) {
             validationErrors.put("name", "Name is required");
         } else if (productDTO.getName().length() <= 3) {
@@ -23,11 +24,19 @@ public class CustomeError {
         }else if (validationStringToInteger(productDTO.getName())) {
             validationErrors.put("name","Invalid format product name, product name must be start with alpabet not number");
         }
+
+        // validation for price
         if (productDTO.getPrice() == null) {
             validationErrors.put("price", "Price is required");
+        } else if (productDTO.getPrice() < 0) {
+            validationErrors.put("price","Product price must be greather than 0");
         }
+
+        // validation for stock
         if (productDTO.getStock() == null) {
-            validationErrors.put("stock", "Stock is required");
+            validationErrors.put("stock", "Price is required");
+        } else if (productDTO.getStock() < 0) {
+            validationErrors.put("price","Product price must be greather than 0");
         }
         if (productDTO.getDescription() == null || productDTO.getDescription().isBlank()) {
             validationErrors.put("description", "Description is required");
