@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ResponseProduct {
+public class UserResponse {
 
 //    @Schema(
 //            description = "Response Status Code", example = "200"
