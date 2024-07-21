@@ -38,9 +38,9 @@ public class CustomeError {
         } else if (productDTO.getStock() < 0) {
             validationErrors.put("price","Product price must be greather than 0");
         }
-        if (productDTO.getDescription() == null || productDTO.getDescription().isBlank()) {
-            validationErrors.put("description", "Description is required");
-        }
+//        if (productDTO.getDescription() == null || productDTO.getDescription().isBlank()) {
+//            validationErrors.put("description", "Description is required");
+//        }
         if (productDTO.getCategory() == null || productDTO.getCategory().isBlank()) {
             validationErrors.put("category", "Category is required");
         }
