@@ -266,8 +266,19 @@ public class ProductController {
     @PutMapping(value = "/product", consumes = {"multipart/form-data"})
     public ResponseEntity<ResponseProduct> updateProduct(@Valid @RequestPart("product") String productJson,
                                                          @RequestParam("image") MultipartFile image) throws IOException {
-        log.info("Received product JSON: {}", productJson);
-        log.info("Received image: {}", image.getOriginalFilename());
+        ObjectMapper objectMapper = new ObjectMapper();
+        ProductDTO productDTOJSON;
+
+        try {
+            productDTOJSON = objectMapper.readValue(productJson, ProductDTO.class);
+        } catch (IOException e) {
+            return ResponseEntity.badRequest().body(new ResponseProduct("400", "Invalid JSON format", null));
+        }
+
+        ResponseEntity<ResponseProduct> responseProductCustomeError = CustomeError.ValidationErrorFieldCustome(productDTOJSON);
+        if (responseProductCustomeError != null) {
+            return responseProductCustomeError;
+        }
 
         var productDTO = productService.updateProduct(productJson, image);
 

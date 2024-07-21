@@ -150,21 +150,23 @@ public class ProductServiceImpl implements IProductService {
 
             String fileName = System.currentTimeMillis() + "_" + image.getOriginalFilename();
             Path path = Paths.get(UPLOAD_DIR + fileName);
-            log.info("Saving file to path: {}", path.toString());
+
             Files.createDirectories(path.getParent());
             Files.write(path, image.getBytes());
 
             // update nama image dengan image yang baru
             product.setImage(fileName);
 
-        }else {
-            product.setId(productDTO.getId());
-            product.setName(productDTO.getName().toLowerCase());
-            product.setPrice(productDTO.getPrice());
-            product.setStock(productDTO.getStock());
-            product.setDescription(productDTO.getDescription());
-            product.setCategory(productDTO.getCategory().toLowerCase());
         }
+
+
+        product.setId(productDTO.getId());
+        product.setName(productDTO.getName().toLowerCase());
+        product.setPrice(productDTO.getPrice());
+        product.setStock(productDTO.getStock());
+        product.setDescription(productDTO.getDescription());
+        product.setCategory(productDTO.getCategory().toLowerCase());
+
 
         product = productRepository.save(product);
 

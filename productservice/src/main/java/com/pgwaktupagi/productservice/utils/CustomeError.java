@@ -16,7 +16,7 @@ public class CustomeError {
 
         // validation for product name
         if (productDTO.getName() == null || productDTO.getName().isBlank()) {
-            validationErrors.put("name", "Name is required");
+            validationErrors.put("name", "Product name is required");
         } else if (productDTO.getName().length() <= 3) {
             validationErrors.put("name","Product name must be greather than 3 characters");
         }else if (productDTO.getName() instanceof String != true){
@@ -34,9 +34,9 @@ public class CustomeError {
 
         // validation for stock
         if (productDTO.getStock() == null) {
-            validationErrors.put("stock", "Price is required");
+            validationErrors.put("stock", "Product stock is required");
         } else if (productDTO.getStock() < 0) {
-            validationErrors.put("price","Product price must be greather than 0");
+            validationErrors.put("stock","Product stock must be greather than 0");
         }
 //        if (productDTO.getDescription() == null || productDTO.getDescription().isBlank()) {
 //            validationErrors.put("description", "Description is required");
