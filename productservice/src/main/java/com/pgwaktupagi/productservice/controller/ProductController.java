@@ -42,6 +42,7 @@ import java.util.List;
         description = "CRUD REST APIs in Toko Online to CREATE, UPDATE, FETCH AND DELETE product details"
 )
 
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
