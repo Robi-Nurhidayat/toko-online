@@ -80,10 +80,11 @@ public class UserController {
                 .body(new UserResponse(UserConstants.STATUS_201, UserConstants.MESSAGE_201, userDTO));
     }
 
-    @PutMapping(consumes = {"multipart/form-data"})
-    public ResponseEntity<UserResponse> updateUser(@RequestPart("user") String userJson,
-                                                   @RequestParam("image") MultipartFile image) throws IOException {
-        UserDTO userDTO = userService.update(userJson, image);
+    @PutMapping( consumes = {"multipart/form-data"})
+    public ResponseEntity<UserResponse> updateProduct( @RequestPart("user") String userJson,
+                                                       @RequestParam("image") MultipartFile image) throws IOException {
+
+        var userDTO = userService.update(userJson, image);
 
         String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path("/api/users/image/")
@@ -91,8 +92,9 @@ public class UserController {
                 .toUriString();
 
         userDTO.setProfileUrl(fileDownloadUri);
+        userDTO.setProfile(image.getOriginalFilename());
 
-        return ResponseEntity.status(HttpStatus.OK)
+        return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new UserResponse(UserConstants.STATUS_200, UserConstants.MESSAGE_200, userDTO));
     }
 

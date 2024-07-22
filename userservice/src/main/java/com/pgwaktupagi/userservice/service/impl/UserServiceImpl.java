@@ -173,60 +173,6 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public UserDTO update(String userJson, MultipartFile image) {
-//        ObjectMapper objectMapper = new ObjectMapper();
-//        UserDTO userDTO = null;
-//
-//        try {
-//            userDTO = objectMapper.readValue(userJson, UserDTO.class);
-//        } catch (JsonProcessingException e) {
-//            throw new RuntimeException("error parsing json " + e);
-//        }
-//
-//        log.info(userJson);
-//        UserDTO finalUserDTO = userDTO;
-//        User userFound = userRepository.findById(userDTO.getId()).orElseThrow(
-//                () -> new ResourceNotFoundException("User", "id", Long.toString(finalUserDTO.getId()))
-//        );
-//
-//        if (!image.isEmpty()) {
-//            Path getPathImageForDelete = Path.of(UPLOAD_DIR + userFound.getProfile());
-//            if (Files.exists(getPathImageForDelete)) {
-//                try {
-//                    Files.deleteIfExists(getPathImageForDelete);
-//                } catch (IOException e) {
-//                    throw new RuntimeException(e);
-//                }
-//            }
-//
-//            String fileName = System.currentTimeMillis() + "_" + image.getOriginalFilename();
-//            Path path = Paths.get(UPLOAD_DIR + fileName);
-//
-//            try {
-//                Files.createDirectories(path.getParent());
-//                Files.write(path, image.getBytes());
-//            } catch (IOException e) {
-//                throw new RuntimeException(e);
-//            }
-//
-//            // Update nama image dengan image yang baru
-//            userFound.setProfile(fileName);
-//        }
-//
-//        userFound.setUsername(userDTO.getUsername());
-//        userFound.setPassword(userDTO.getPassword());
-//        userFound.setEmail(userDTO.getEmail());
-//        userFound.setFullName(userDTO.getFullName());
-//        userFound.setPhoneNumber(userDTO.getPhoneNumber());
-//        userFound.setAddress(userDTO.getAddress());
-//
-//        userFound = userRepository.save(userFound);
-//
-//        userDTO.setProfile(userFound.getProfile());
-//        userDTO.setCreatedAt(userFound.getCreatedAt());
-//        userDTO.setUpdatedAt(userFound.getUpdatedAt());
-//
-//        return userDTO;
-
 
         ObjectMapper objectMapper = new ObjectMapper();
         UserDTO userDTO = null;
@@ -238,35 +184,52 @@ public class UserServiceImpl implements IUserService {
         }
 
 
-
+        User user = userRepository.findById(userDTO.getId()).orElseThrow(
+                () -> new ResourceNotFoundException("User", "id", "tidak ada")
+        );
 
         log.info(userJson);
 
-        String fileName = System.currentTimeMillis() + "_" + image.getOriginalFilename();
-        Path path = Paths.get(UPLOAD_DIR + fileName);
-        log.info("Saving file to path: {}", path.toString());
-        try {
-            Files.createDirectories(path.getParent());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        try {
-            Files.write(path, image.getBytes());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        if (!image.isEmpty()) {
+            // sekarang ada 7 image
+            Path getPathImageForDelete = Path.of(UPLOAD_DIR+user.getProfile());
+            if (Files.exists(getPathImageForDelete)) {
+                System.out.println("file ini ada " + getPathImageForDelete);
+                try {
+                    Files.deleteIfExists(getPathImageForDelete);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            String fileName = System.currentTimeMillis() + "_" + image.getOriginalFilename();
+            Path path = Paths.get(UPLOAD_DIR + fileName);
+
+            try {
+                Files.createDirectories(path.getParent());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            try {
+                Files.write(path, image.getBytes());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+            // update nama image dengan image yang baru
+            user.setProfile(fileName);
+
         }
 
-        User user = User
-                .builder()
-                .id(userDTO.getId())
-                .username(userDTO.getUsername())
-                .password(userDTO.getPassword())
-                .email(userDTO.getEmail())
-                .fullName(userDTO.getFullName())
-                .phoneNumber(userDTO.getPhoneNumber())
-                .address(userDTO.getAddress())
-                .profile(fileName)
-                .build();
+
+        user.setId(userDTO.getId());
+        user.setUsername(userDTO.getUsername());
+        user.setPassword(userDTO.getPassword());
+        user.setEmail(userDTO.getEmail());
+        user.setFullName(userDTO.getFullName());
+        user.setPhoneNumber(userDTO.getPhoneNumber());
+        user.setAddress(userDTO.getAddress());
+
 
         user = userRepository.save(user);
 
