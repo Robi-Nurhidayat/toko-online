@@ -39,6 +39,16 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(new UserResponse(UserConstants.STATUS_200,UserConstants.MESSAGE_200,allUsers));
     }
 
+    @GetMapping("/fetch")
+    public ResponseEntity<UserResponse> fetchUser(@RequestParam("email") String email) {
+
+        UserDTO user = userService.findUser(email);
+
+        return ResponseEntity.status(HttpStatus.OK).body(new UserResponse(UserConstants.STATUS_200,UserConstants.MESSAGE_200,user));
+
+
+    }
+
     @PostMapping( consumes = {"multipart/form-data"})
     public ResponseEntity<UserResponse> createProduct( @RequestPart("user") String userJson,
                                                          @RequestParam("image") MultipartFile image) throws IOException {
@@ -70,6 +80,23 @@ public class UserController {
                 .body(new UserResponse(UserConstants.STATUS_201, UserConstants.MESSAGE_201, userDTO));
     }
 
+    @PutMapping(consumes = {"multipart/form-data"})
+    public ResponseEntity<UserResponse> updateUser(@RequestPart("user") String userJson,
+                                                   @RequestParam("image") MultipartFile image) throws IOException {
+        UserDTO userDTO = userService.update(userJson, image);
+
+        String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
+                .path("/api/users/image/")
+                .path(userDTO.getProfile())
+                .toUriString();
+
+        userDTO.setProfileUrl(fileDownloadUri);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(new UserResponse(UserConstants.STATUS_200, UserConstants.MESSAGE_200, userDTO));
+    }
+
+
 
 
     @GetMapping("/image/{filename:.+}")
@@ -99,6 +126,22 @@ public class UserController {
             log.error("Error reading file: {}", filename, e);
             throw new RuntimeException("Error: " + e.getMessage());
         }
+
+
+    }
+
+
+    @DeleteMapping
+    public ResponseEntity<UserResponse> delete(@RequestParam("userId") String userId){
+
+        boolean isDelete = userService.deleteUser(Long.parseLong(userId));
+
+        if (isDelete) {
+            return ResponseEntity.status(HttpStatus.OK).body(new UserResponse(UserConstants.STATUS_200,UserConstants.MESSAGE_200,null));
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(new UserResponse(UserConstants.STATUS_417,UserConstants.MESSAGE_417_DELETE,null));
+
+
     }
 
 

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pgwaktupagi.userservice.dto.UserDTO;
 import com.pgwaktupagi.userservice.entity.User;
+import com.pgwaktupagi.userservice.exception.ResourceNotFoundException;
 import com.pgwaktupagi.userservice.exception.UserAlreadyExistsException;
 import com.pgwaktupagi.userservice.repository.UserRepository;
 import com.pgwaktupagi.userservice.service.IUserService;
@@ -14,6 +15,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -28,6 +30,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Slf4j
 public class UserServiceImpl implements IUserService {
+
 
     @Autowired
     private final UserRepository userRepository;
@@ -53,11 +56,22 @@ public class UserServiceImpl implements IUserService {
                     .fullName(user.getFullName())
                     .phoneNumber(user.getPhoneNumber())
                     .address(user.getAddress())
-                    .profile("avatar.jpg")
+                    .profile(user.getProfile().substring(user.getProfile().indexOf("_")+1))
                     .createdAt(user.getCreatedAt())
                     .updatedAt(user.getUpdatedAt())
                     .build();
 
+            // Generate image URL
+            try {
+                String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
+                        .path("/api/users/image/")
+                        .path(user.getProfile())
+                        .toUriString();
+                userDTO.setProfileUrl(fileDownloadUri);
+            } catch (Exception e) {
+                log.error("Error generating image URL for product: " + user.getUsername(), e);
+                userDTO.setProfileUrl(null); // Set to null or handle accordingly
+            }
             userDTOS.add(userDTO);
         }
 
@@ -121,4 +135,110 @@ public class UserServiceImpl implements IUserService {
         return userDTO;
 
     }
+
+    @Override
+    public UserDTO findUser(String email) {
+        User user = userRepository.findByEmail(email).orElseThrow(
+                () -> new ResourceNotFoundException("User","email", email)
+        );
+
+        UserDTO userDTO = UserDTO.builder()
+                .id(user.getId())
+                .username(user.getUsername())
+                .password(user.getPassword())
+                .email(user.getEmail())
+                .fullName(user.getFullName())
+                .phoneNumber(user.getPhoneNumber())
+                .address(user.getAddress())
+                .profile(user.getProfile().substring(user.getProfile().indexOf("_")+1))
+                .createdAt(user.getCreatedAt())
+                .updatedAt(user.getUpdatedAt())
+                .build();
+
+        // Generate image URL
+        try {
+            String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
+                    .path("/api/users/image/")
+                    .path(user.getProfile())
+                    .toUriString();
+            userDTO.setProfileUrl(fileDownloadUri);
+        } catch (Exception e) {
+            log.error("Error generating image URL for product: " + user.getUsername(), e);
+            userDTO.setProfileUrl(null); // Set to null or handle accordingly
+        }
+
+
+        return userDTO;
+    }
+
+    @Override
+    public UserDTO update(String userJson, MultipartFile image) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        UserDTO userDTO = null;
+
+        try {
+            userDTO = objectMapper.readValue(userJson, UserDTO.class);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+
+        UserDTO finalUserDTO = userDTO;
+        User userFound = userRepository.findById(userDTO.getId()).orElseThrow(
+                () -> new ResourceNotFoundException("User", "id", Long.toString(finalUserDTO.getId()))
+        );
+
+        if (!image.isEmpty()) {
+            Path getPathImageForDelete = Path.of("uploads" + userFound.getProfile());
+            if (Files.exists(getPathImageForDelete)) {
+                try {
+                    Files.deleteIfExists(getPathImageForDelete);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            String fileName = System.currentTimeMillis() + "_" + image.getOriginalFilename();
+            Path path = Paths.get(UPLOAD_DIR + fileName);
+
+            try {
+                Files.createDirectories(path.getParent());
+                Files.write(path, image.getBytes());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+            // Update nama image dengan image yang baru
+            userFound.setProfile(fileName);
+        }
+
+        userFound.setUsername(userDTO.getUsername());
+        userFound.setPassword(userDTO.getPassword());
+        userFound.setEmail(userDTO.getEmail());
+        userFound.setFullName(userDTO.getFullName());
+        userFound.setPhoneNumber(userDTO.getPhoneNumber());
+        userFound.setAddress(userDTO.getAddress());
+
+        userFound = userRepository.save(userFound);
+
+        userDTO.setId(userFound.getId());
+        userDTO.setProfile(userFound.getProfile());
+        userDTO.setCreatedAt(userFound.getCreatedAt());
+        userDTO.setUpdatedAt(userFound.getUpdatedAt());
+
+        return userDTO;
+    }
+
+    @Override
+    public boolean deleteUser(Long userId) {
+
+        userRepository.findById(userId).orElseThrow(
+                () -> new ResourceNotFoundException("User","id",Long.toString(userId))
+        );
+
+        userRepository.deleteById(userId);
+
+        return true;
+    }
+
+
 }
