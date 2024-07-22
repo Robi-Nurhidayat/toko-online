@@ -28,7 +28,7 @@ import java.util.Optional;
 @Slf4j
 public class ProductServiceImpl implements IProductService {
 
-    private static final String UPLOAD_DIR = "uploads/";
+    private static final String UPLOAD_DIR = System.getProperty("user.dir") + "/uploads/";
     private final ProductRepository productRepository;
     private final long MAX_IMAGE_SIZE = 1 * 1024 * 1024;
 
