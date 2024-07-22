@@ -18,7 +18,8 @@ public class UserDTO {
     private String fullName;
     private String phoneNumber;
     private String address;
-    private String profilePicturePath;
+    private String profile;
+    private String profileUrl;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

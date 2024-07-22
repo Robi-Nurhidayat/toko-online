@@ -32,8 +32,8 @@ public class GlobalExceptionHandler {
     // metode untuk handle validasi
 
 
-    @ExceptionHandler(ProductAlreadyExistsException.class)
-    public ResponseEntity<ErrorResponseDto> handleProductAlreadyExistsException(ProductAlreadyExistsException exception, WebRequest webRequest) {
+    @ExceptionHandler(UserAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponseDto> handleProductAlreadyExistsException(UserAlreadyExistsException exception, WebRequest webRequest) {
         ErrorResponseDto errorResponseDto = new ErrorResponseDto(
                 webRequest.getDescription(false),
                 HttpStatus.BAD_REQUEST,
