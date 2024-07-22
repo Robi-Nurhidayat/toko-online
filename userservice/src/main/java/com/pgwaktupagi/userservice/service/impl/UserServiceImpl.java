@@ -32,7 +32,7 @@ public class UserServiceImpl implements IUserService {
     @Autowired
     private final UserRepository userRepository;
 
-    private static final String UPLOAD_DIR = System.getProperty("user.dir") + "/uploads/";
+    private static final String UPLOAD_DIR = System.getProperty("user.dir") + "/userservice/uploads/";
 
     @Override
     public List<UserDTO> getAllUsers() {

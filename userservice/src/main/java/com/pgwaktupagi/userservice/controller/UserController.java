@@ -30,7 +30,7 @@ import java.util.List;
 public class UserController {
 
     private final IUserService userService;
-    private static final String UPLOAD_DIR = "uploads/";
+    private static final String UPLOAD_DIR = System.getProperty("user.dir") + "/userservice/uploads/";
 
     @GetMapping
     public ResponseEntity<UserResponse> getAllUser() {
@@ -59,7 +59,7 @@ public class UserController {
         var userDTO = userService.save(userJson, image);
 
         String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
-                .path("/api/image/")
+                .path("/api/users/image/")
                 .path(userDTO.getProfile())
                 .toUriString();
 
@@ -100,5 +100,6 @@ public class UserController {
             throw new RuntimeException("Error: " + e.getMessage());
         }
     }
+
 
 }
