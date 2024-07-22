@@ -54,7 +54,7 @@ public class ProductController {
     @Autowired
     private ObjectMapper objectMapper;
 
-    private static final String UPLOAD_DIR = "uploads/";
+    private static final String UPLOAD_DIR = System.getProperty("user.dir") + "/productservice/uploads/";
 
 
 
