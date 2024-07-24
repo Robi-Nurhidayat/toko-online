@@ -30,6 +30,7 @@ public class CartServiceImpl implements ICartService {
                     List<CartItemDTO> cartItemDTOs = cart.getCartItems().stream()
                             .map(item -> new CartItemDTO(
                                     item.getId(),
+                                    item.getCart().getId(),
                                     item.getProductId(),
                                     item.getQuantity(),
                                     item.getPrice()
