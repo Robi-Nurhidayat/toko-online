@@ -6,4 +6,6 @@ public interface ICartItemService {
 
 
     CartItemDTO addToCart(CartItemDTO cartItemDTO);
+
+    boolean deleteCart(Long id);
 }

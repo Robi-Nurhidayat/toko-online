@@ -3,6 +3,7 @@ package com.pgwaktupagi.cartservice.service.impl;
 import com.pgwaktupagi.cartservice.dto.CartItemDTO;
 import com.pgwaktupagi.cartservice.entity.Cart;
 import com.pgwaktupagi.cartservice.entity.CartItem;
+import com.pgwaktupagi.cartservice.mapper.ResourceNotFoundException;
 import com.pgwaktupagi.cartservice.repository.CartItemRepository;
 import com.pgwaktupagi.cartservice.repository.CartRepository;
 import com.pgwaktupagi.cartservice.service.ICartItemService;
@@ -56,5 +57,16 @@ public class CartItemServiceImpl implements ICartItemService {
     private Long getCurrentCustomerId() {
         // Implement logic to get the current customer ID, e.g., from security context
         return 1L; // Example placeholder
+    }
+
+    @Override
+    public boolean deleteCart(Long id) {
+
+        cartItemRepository.findById(id).orElseThrow(
+                () -> new ResourceNotFoundException("Cart item","id",Long.toString(id))
+        );
+        cartItemRepository.deleteById(id);
+
+        return true;
     }
 }
