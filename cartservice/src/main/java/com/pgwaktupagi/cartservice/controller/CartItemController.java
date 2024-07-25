@@ -18,8 +18,15 @@ public class CartItemController {
     @PostMapping("/add")
     public ResponseEntity<Response> addItemToCart(@RequestBody CartItemDTO cartItemDTO) {
 
-        CartItemDTO cartItem = cartItemService.addToCart(cartItemDTO);
+        CartItemDTO cartItem = cartItemService.addToCartItem(cartItemDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(new Response("201","Success add to cart",cartItem));
+    }
+
+    @PutMapping("/update")
+    public ResponseEntity<Response> updateCartItem(@RequestBody CartItemDTO cartItemDTO) {
+
+        CartItemDTO cartItem = cartItemService.updateCartItem(cartItemDTO);
+        return ResponseEntity.status(HttpStatus.OK).body(new Response("200","Success update cart",cartItem));
     }
 
     @DeleteMapping

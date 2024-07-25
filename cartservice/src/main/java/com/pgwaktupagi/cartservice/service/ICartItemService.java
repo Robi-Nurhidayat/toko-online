@@ -5,7 +5,9 @@ import com.pgwaktupagi.cartservice.dto.CartItemDTO;
 public interface ICartItemService {
 
 
-    CartItemDTO addToCart(CartItemDTO cartItemDTO);
+    CartItemDTO addToCartItem(CartItemDTO cartItemDTO);
+
+    CartItemDTO updateCartItem(CartItemDTO cartItemDTO);
 
     boolean deleteCart(Long id);
 }

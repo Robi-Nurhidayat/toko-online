@@ -22,7 +22,7 @@ public class CartItemServiceImpl implements ICartItemService {
 
     private final CartItemRepository cartItemRepository;
 
-    public CartItemDTO addToCart(CartItemDTO cartItemDTO) {
+    public CartItemDTO addToCartItem(CartItemDTO cartItemDTO) {
         // Assume customerId is derived from the security context or request
         Long customerId = getCurrentCustomerId();
 
@@ -41,7 +41,7 @@ public class CartItemServiceImpl implements ICartItemService {
         cartItem.setCart(cart);
         cartItem.setProductId(cartItemDTO.getProductId());
         cartItem.setQuantity(cartItemDTO.getQuantity());
-        cartItem.setPrice(cartItemDTO.getPrice());
+        cartItem.setPrice(cartItemDTO.getPrice() * cartItemDTO.getQuantity());
 
         cartItem = cartItemRepository.save(cartItem);
 
@@ -52,6 +52,40 @@ public class CartItemServiceImpl implements ICartItemService {
                 cartItem.getQuantity(),
                 cartItem.getPrice()
         );
+    }
+
+    @Override
+    public CartItemDTO updateCartItem(CartItemDTO cartItemDTO) {
+        // Assume customerId is derived from the security context or request
+
+        Long customerId = getCurrentCustomerId();
+
+        Optional<Cart> optionalCart = cartRepository.findByCustomerId(customerId);
+        Cart cart = null;
+
+        if (optionalCart.isPresent()) {
+            cart = optionalCart.get();
+       }
+
+        CartItem cartItem = new CartItem();
+        cartItem.setId(cartItemDTO.getId());
+        cartItem.setCart(cart);
+        cartItem.setProductId(cartItemDTO.getProductId());
+        cartItem.setQuantity(cartItemDTO.getQuantity());
+        cartItem.setPrice(cartItemDTO.getPrice() * cartItemDTO.getQuantity());
+
+        CartItem updatedCartItem = cartItemRepository.save(cartItem);
+
+        return new CartItemDTO(
+                updatedCartItem.getId(),
+                updatedCartItem.getCart().getId(),
+                updatedCartItem.getProductId(),
+                updatedCartItem.getQuantity(),
+                updatedCartItem.getPrice()
+        );
+
+
+
     }
 
     private Long getCurrentCustomerId() {
