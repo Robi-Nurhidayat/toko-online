@@ -3,6 +3,7 @@ package com.pgwaktupagi.cartservice.service.impl;
 import com.pgwaktupagi.cartservice.dto.CartDTO;
 import com.pgwaktupagi.cartservice.dto.CartItemDTO;
 import com.pgwaktupagi.cartservice.entity.Cart;
+import com.pgwaktupagi.cartservice.mapper.ResourceNotFoundException;
 import com.pgwaktupagi.cartservice.repository.CartItemRepository;
 import com.pgwaktupagi.cartservice.repository.CartRepository;
 import com.pgwaktupagi.cartservice.service.ICartService;
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class CartServiceImpl implements ICartService {
+
 
     private final CartRepository repository;
     private final CartItemRepository cartItemRepository;
@@ -48,5 +50,16 @@ public class CartServiceImpl implements ICartService {
                     );
                 })
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean deleteCart(Long id) {
+
+        repository.findById(id).orElseThrow(
+                () -> new ResourceNotFoundException("Cart","id",Long.toString(id))
+        );
+
+        repository.deleteById(id);
+        return true;
     }
 }

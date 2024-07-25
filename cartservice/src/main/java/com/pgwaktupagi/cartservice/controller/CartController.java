@@ -6,9 +6,7 @@ import com.pgwaktupagi.cartservice.service.ICartService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -25,5 +23,17 @@ public class CartController {
         List<CartDTO> allCart = cartService.getAllCart();
         return ResponseEntity.status(HttpStatus.OK).body(new Response("200","Sukses get all data", allCart));
 
+    }
+
+    @DeleteMapping
+    public ResponseEntity<Response> delete(@RequestParam Long id){
+
+        boolean isDeleted = cartService.deleteCart(id);
+
+        if (isDeleted) {
+            return ResponseEntity.status(HttpStatus.OK).body(new Response("200","Success delete cart",null));
+        }
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Response("400","failed delete cart",null));
     }
 }
