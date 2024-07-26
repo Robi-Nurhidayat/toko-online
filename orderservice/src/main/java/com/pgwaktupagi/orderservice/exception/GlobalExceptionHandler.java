@@ -1,7 +1,7 @@
 package com.pgwaktupagi.orderservice.exception;
 
-import com.pgwaktupagi.productservice.dto.ErrorResponseDto;
-import com.pgwaktupagi.productservice.dto.ResponseProduct;
+
+import com.pgwaktupagi.orderservice.dto.ErrorResponseDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -56,13 +56,5 @@ public class GlobalExceptionHandler {
     }
 
 
-    @ExceptionHandler(MaxUploadSizeExceededException.class)
-    public ResponseEntity<ResponseProduct> handleMaxSizeException(MaxUploadSizeExceededException exception) {
-        ResponseProduct responseProduct = new ResponseProduct();
-        responseProduct.setStatusCode("400");
-        responseProduct.setMessage("Failed upload image");
-        responseProduct.setData("Image must be less than 1mb");
 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseProduct);
-    }
 }

@@ -1,12 +1,12 @@
 server:
-  port: 8003
+  port: 8002
 spring:
   application:
-    name: orderservice
+    name: cartservice
   datasource:
-    url: jdbc:postgresql://localhost:5433/order
-    username: order
-    password: order
+    url: jdbc:postgresql://localhost:5435/cart
+    username: cart
+    password: cart
   jpa:
     hibernate:
       ddl-auto: create
