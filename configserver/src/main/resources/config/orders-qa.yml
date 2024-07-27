@@ -1,0 +1,11 @@
+build:
+  version: "2.0"
+
+orders:
+  message: "Welcome to toko online orders related QA APIs "
+  contactDetails:
+    name: "Fahrul - QA Lead"
+    email: "fahrul@gmail.com.com"
+  onCallSupport:
+    - 22222222222222
+    - 22222222222222
