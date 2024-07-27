@@ -21,6 +21,29 @@ services:
       - MONGO_INITDB_DATABASE=product
     volumes:
       - product_data:/data/db
+
+  DB_CART:
+    container_name: toko_online_cart_DB
+    image: postgres:16-alpine
+    restart: always
+    shm_size: 256mb
+    ports:
+      - "5435:5432"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+        reservations:
+          cpus: "0.2"
+          memory: 128M
+    environment:
+      - POSTGRES_PASSWORD=cart
+      - POSTGRES_USER=cart
+      - POSTGRES_DB=cart
+    volumes:
+      - cart_data:/var/lib/postgresql/data
+
   DB_ORDER:
     container_name: toko_online_order_DB
     image: postgres:16-alpine
@@ -69,3 +92,4 @@ volumes:
   product_data:
   order_data:
   user_data:
+  cart_data:

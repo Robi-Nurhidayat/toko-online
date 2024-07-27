@@ -1,0 +1,15 @@
+server:
+  port: 8002
+spring:
+  application:
+    name: cartservice
+  datasource:
+    url: jdbc:postgresql://localhost:5435/cart
+    username: cart
+    password: cart
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
