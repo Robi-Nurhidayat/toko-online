@@ -1,0 +1,11 @@
+build:
+  version: "1.0"
+
+products:
+  message: "Welcome to toko online products related prod APIs "
+  contactDetails:
+    name: "Bagus perdana- Product Owner"
+    email: "bagus@gmail.com"
+  onCallSupport:
+    - 11111111111111
+    - 11111111111111

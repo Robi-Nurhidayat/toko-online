@@ -1,0 +1,11 @@
+build:
+  version: "3.0"
+
+orders:
+  message: "Welcome to toko online orders related local APIs "
+  contactDetails:
+    name: "Robi Nurhidayat - Developer"
+    email: "robi@gmail.com"
+  onCallSupport:
+    - 000000000000
+    - 000000000000
