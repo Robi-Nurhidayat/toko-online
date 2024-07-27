@@ -1,6 +1,7 @@
 package com.pgwaktupagi.cartservice.controller;
 
 import com.pgwaktupagi.cartservice.dto.CartDTO;
+import com.pgwaktupagi.cartservice.dto.CartInfo;
 import com.pgwaktupagi.cartservice.dto.Response;
 import com.pgwaktupagi.cartservice.service.ICartService;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,7 @@ import java.util.List;
 public class CartController {
 
     private final ICartService cartService;
+    private final CartInfo cartInfo;
 
     @GetMapping
     public ResponseEntity<Response> getAllData() {
@@ -35,5 +37,11 @@ public class CartController {
         }
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Response("400","failed delete cart",null));
+    }
+
+    @GetMapping("/cart-info")
+    public ResponseEntity<CartInfo> getInfo() {
+
+        return new ResponseEntity<>(cartInfo,HttpStatus.OK);
     }
 }

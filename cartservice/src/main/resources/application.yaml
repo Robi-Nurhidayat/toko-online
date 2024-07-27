@@ -2,7 +2,11 @@ server:
   port: 8002
 spring:
   application:
-    name: cartservice
+    name: "carts"
+  profiles:
+    active: "prod"
+  config:
+    import: "optional:configserver:http://localhost:8071"
   datasource:
     url: jdbc:postgresql://localhost:5435/cart
     username: cart
@@ -13,3 +17,9 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"

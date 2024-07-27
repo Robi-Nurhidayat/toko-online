@@ -5,6 +5,7 @@ import com.pgwaktupagi.productservice.constant.ProductConstants;
 import com.pgwaktupagi.productservice.constant.ProductDocumentation;
 import com.pgwaktupagi.productservice.dto.ErrorResponseDto;
 import com.pgwaktupagi.productservice.dto.ProductDTO;
+import com.pgwaktupagi.productservice.dto.ProductInfo;
 import com.pgwaktupagi.productservice.dto.ResponseProduct;
 import com.pgwaktupagi.productservice.service.IProductService;
 import com.pgwaktupagi.productservice.utils.CustomeError;
@@ -52,6 +53,7 @@ public class ProductController {
 
     private final IProductService productService;
 
+    private final ProductInfo productInfo;
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -324,6 +326,10 @@ public class ProductController {
     }
 
 
+    @GetMapping("/products/contact-info")
+    public ResponseEntity<ProductInfo> getProductInfo() {
+        return ResponseEntity.status(HttpStatus.OK).body(productInfo);
+    }
 
 
 

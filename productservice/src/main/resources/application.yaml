@@ -2,7 +2,12 @@ server:
   port: 8000
 spring:
   application:
-    name: productservice
+    name: "products"
+  profiles:
+    active: "qa"
+  config:
+    import: "optional:configserver:http://localhost:8071/"
+
   data:
     mongodb:
       host: localhost
@@ -16,6 +21,8 @@ spring:
       max-file-size: 1MB
       max-request-size: 1MB
 
-#product:
-#  images:
-#    upload-dir=/path/to/upload/directory:
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"

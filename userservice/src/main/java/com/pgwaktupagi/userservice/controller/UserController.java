@@ -3,6 +3,7 @@ package com.pgwaktupagi.userservice.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pgwaktupagi.userservice.constant.UserConstants;
 import com.pgwaktupagi.userservice.dto.UserDTO;
+import com.pgwaktupagi.userservice.dto.UserInfo;
 import com.pgwaktupagi.userservice.dto.UserResponse;
 import com.pgwaktupagi.userservice.service.IUserService;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,7 @@ import java.util.List;
 @Slf4j
 public class UserController {
 
+    private final UserInfo userInfo;
     private final IUserService userService;
     private static final String UPLOAD_DIR = System.getProperty("user.dir") + "/userservice/uploads/";
 
@@ -147,4 +149,8 @@ public class UserController {
     }
 
 
+    @GetMapping("/users-info")
+    public ResponseEntity<UserInfo> getInfo() {
+        return ResponseEntity.status(HttpStatus.OK).body(userInfo);
+    }
 }

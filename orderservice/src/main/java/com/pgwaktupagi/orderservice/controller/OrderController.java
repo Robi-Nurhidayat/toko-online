@@ -1,6 +1,7 @@
 package com.pgwaktupagi.orderservice.controller;
 
 import com.pgwaktupagi.orderservice.dto.OrderDTO;
+import com.pgwaktupagi.orderservice.dto.OrderInfo;
 import com.pgwaktupagi.orderservice.dto.Response;
 import com.pgwaktupagi.orderservice.service.IOrderService;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ import java.util.List;
 public class OrderController {
 
     private final IOrderService orderService;
+    private final OrderInfo orderInfo;
 
     @GetMapping
     public ResponseEntity<Response> getAllOrder() {
@@ -27,5 +29,10 @@ public class OrderController {
 
         return ResponseEntity.status(HttpStatus.OK).body(new Response("200","Success get all orders",allOrder));
 
+    }
+
+    @GetMapping("/order-info")
+    public ResponseEntity<OrderInfo> getInfo() {
+        return ResponseEntity.status(HttpStatus.OK).body(orderInfo);
     }
 }
