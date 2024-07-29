@@ -23,7 +23,6 @@ public class CartItem {
     @ManyToOne
     @JoinColumn(name = "cart_id", nullable = false)
     private Cart cart;
-
     private Long productId;
 
     private int quantity;

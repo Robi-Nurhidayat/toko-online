@@ -1,14 +1,19 @@
 package com.pgwaktupagi.cartservice.service.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pgwaktupagi.cartservice.dto.CartItemDTO;
+import com.pgwaktupagi.cartservice.dto.UserDTO;
+import com.pgwaktupagi.cartservice.dto.UserResponse;
 import com.pgwaktupagi.cartservice.entity.Cart;
 import com.pgwaktupagi.cartservice.entity.CartItem;
 import com.pgwaktupagi.cartservice.mapper.ResourceNotFoundException;
 import com.pgwaktupagi.cartservice.repository.CartItemRepository;
 import com.pgwaktupagi.cartservice.repository.CartRepository;
 import com.pgwaktupagi.cartservice.service.ICartItemService;
+import com.pgwaktupagi.cartservice.service.client.UserClient;
 import jakarta.persistence.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -19,21 +24,38 @@ public class CartItemServiceImpl implements ICartItemService {
 
 
     private final CartRepository cartRepository;
-
     private final CartItemRepository cartItemRepository;
+    private final ObjectMapper objectMapper;
+    private final UserClient userClient;
 
     public CartItemDTO addToCartItem(CartItemDTO cartItemDTO) {
-        // Assume customerId is derived from the security context or request
-        Long customerId = getCurrentCustomerId();
+//        ResponseEntity<UserResponse> userResponseResponseEntity = userClient.fetchUser(cartItemDTO.getEmail());
+//        UserResponse body = userResponseResponseEntity.getBody();
+//
+//        Long userId = null;
+//        if (body != null && body.getData() != null) {
+//            // Convert 'data' to UserDTO
+//            UserDTO userDTO = objectMapper.convertValue(body.getData(), UserDTO.class);
+//            userId = userDTO.getId();
+//            // Now you can use userDTO as needed
+//            System.out.println("UserDTO: " + userDTO);
+//        }
 
-        Optional<Cart> optionalCart = cartRepository.findByCustomerId(customerId);
+        ResponseEntity<UserDTO> user = userClient.findByid(cartItemDTO.getUserId());
+
+        if (user.getBody() == null) {
+            throw new ResourceNotFoundException("User","id", Long.toString(user.getBody().getId()));
+        }
+        Long userId = user.getBody().getId();
+
+        Optional<Cart> optionalCart = cartRepository.findByUserId(userId);
         Cart cart;
 
         if (optionalCart.isPresent()) {
             cart = optionalCart.get();
         } else {
             cart = new Cart();
-            cart.setCustomerId(customerId);
+            cart.setUserId(userId);
             cart = cartRepository.save(cart);
         }
 
@@ -47,6 +69,7 @@ public class CartItemServiceImpl implements ICartItemService {
 
         return new CartItemDTO(
                 cartItem.getId(),
+                null,
                 cartItem.getCart().getId(),
                 cartItem.getProductId(),
                 cartItem.getQuantity(),
@@ -58,9 +81,10 @@ public class CartItemServiceImpl implements ICartItemService {
     public CartItemDTO updateCartItem(CartItemDTO cartItemDTO) {
         // Assume customerId is derived from the security context or request
 
-        Long customerId = getCurrentCustomerId();
+        ResponseEntity<UserDTO> user = userClient.findByid(cartItemDTO.getUserId());
+        Long userId = user.getBody().getId();
 
-        Optional<Cart> optionalCart = cartRepository.findByCustomerId(customerId);
+        Optional<Cart> optionalCart = cartRepository.findByUserId(userId);
         Cart cart = null;
 
         if (optionalCart.isPresent()) {
@@ -78,6 +102,7 @@ public class CartItemServiceImpl implements ICartItemService {
 
         return new CartItemDTO(
                 updatedCartItem.getId(),
+                cartItemDTO.getUserId(),
                 updatedCartItem.getCart().getId(),
                 updatedCartItem.getProductId(),
                 updatedCartItem.getQuantity(),
@@ -88,10 +113,6 @@ public class CartItemServiceImpl implements ICartItemService {
 
     }
 
-    private Long getCurrentCustomerId() {
-        // Implement logic to get the current customer ID, e.g., from security context
-        return 1L; // Example placeholder
-    }
 
     @Override
     public boolean deleteCart(Long id) {

@@ -5,6 +5,7 @@ import com.pgwaktupagi.userservice.constant.UserConstants;
 import com.pgwaktupagi.userservice.dto.UserDTO;
 import com.pgwaktupagi.userservice.dto.UserInfo;
 import com.pgwaktupagi.userservice.dto.UserResponse;
+import com.pgwaktupagi.userservice.entity.User;
 import com.pgwaktupagi.userservice.service.IUserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -49,6 +50,14 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(new UserResponse(UserConstants.STATUS_200,UserConstants.MESSAGE_200,user));
 
 
+    }
+
+    // ini untuk fetch data by id
+    @GetMapping("/find")
+    public ResponseEntity<User> findByid(@RequestParam Long userId){
+        User userById = userService.findById(userId);
+
+        return ResponseEntity.status(HttpStatus.OK).body(userById);
     }
 
     @PostMapping( consumes = {"multipart/form-data"})

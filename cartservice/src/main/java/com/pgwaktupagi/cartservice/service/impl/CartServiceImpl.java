@@ -32,6 +32,7 @@ public class CartServiceImpl implements ICartService {
                     List<CartItemDTO> cartItemDTOs = cart.getCartItems().stream()
                             .map(item -> new CartItemDTO(
                                     item.getId(),
+                                    null,
                                     item.getCart().getId(),
                                     item.getProductId(),
                                     item.getQuantity(),
@@ -41,7 +42,7 @@ public class CartServiceImpl implements ICartService {
 
                     return new CartDTO(
                             cart.getId(),
-                            cart.getCustomerId(),
+                            cart.getUserId(),
                             cart.getCreatedAt(),
                             cart.getUpdatedAt(),
                             cartItemDTOs,

@@ -1,5 +1,6 @@
 package com.pgwaktupagi.cartservice.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,6 +11,8 @@ import lombok.NoArgsConstructor;
 public class CartItemDTO {
 
     private Long id;
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private Long userId;
     private Long cartId;
     private Long productId;
     private int quantity;

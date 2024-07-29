@@ -254,5 +254,12 @@ public class UserServiceImpl implements IUserService {
         return true;
     }
 
+    @Override
+    public User findById(Long userId) {
+        return userRepository.findById(userId).orElseThrow(
+                () -> new ResourceNotFoundException("User", "id", Long.toString(userId))
+        );
+    }
+
 
 }
