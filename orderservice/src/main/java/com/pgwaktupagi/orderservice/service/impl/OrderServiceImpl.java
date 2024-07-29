@@ -1,12 +1,16 @@
 package com.pgwaktupagi.orderservice.service.impl;
 
 import com.pgwaktupagi.orderservice.dto.OrderDTO;
+import com.pgwaktupagi.orderservice.dto.UserDTO;
 import com.pgwaktupagi.orderservice.entity.Order;
 import com.pgwaktupagi.orderservice.entity.OrderItem;
+import com.pgwaktupagi.orderservice.exception.ResourceNotFoundException;
 import com.pgwaktupagi.orderservice.repository.OrderItemRepository;
 import com.pgwaktupagi.orderservice.repository.OrderRepository;
 import com.pgwaktupagi.orderservice.service.IOrderService;
+import com.pgwaktupagi.orderservice.service.client.UserClient;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -18,6 +22,7 @@ public class OrderServiceImpl implements IOrderService {
 
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
+    private final UserClient userClient;
 
     @Override
     public List<OrderDTO> getAllOrder() {
@@ -51,6 +56,14 @@ public class OrderServiceImpl implements IOrderService {
 
     @Override
     public OrderDTO createOrder(OrderDTO orderDTO) {
+
+        // find user for set user id
+        ResponseEntity<UserDTO> user = userClient.findByid(orderDTO.getUserId());
+        if (user.getBody() == null) {
+            throw new ResourceNotFoundException("User","id",Long.toString(user.getBody().getId()));
+        }
+
+        // find cart for set cartId
 
         Order order = new Order();
         order.setOrderId(orderDTO.getOrderId());
