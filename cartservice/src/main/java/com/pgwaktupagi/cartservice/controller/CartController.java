@@ -39,6 +39,13 @@ public class CartController {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new Response("400","failed delete cart",null));
     }
 
+    @GetMapping("/find")
+    public ResponseEntity<Response> findCartById(@RequestParam("cartId") Long cartId) {
+        CartDTO cartById = cartService.findCartById(cartId);
+
+        return ResponseEntity.status(HttpStatus.OK).body(new Response("200","Success",cartById));
+    }
+
     @GetMapping("/cart-info")
     public ResponseEntity<CartInfo> getInfo() {
 

@@ -1,23 +1,19 @@
 package com.pgwaktupagi.cartservice.service.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pgwaktupagi.cartservice.dto.CartItemDTO;
 import com.pgwaktupagi.cartservice.dto.UserDTO;
-import com.pgwaktupagi.cartservice.dto.UserResponse;
 import com.pgwaktupagi.cartservice.entity.Cart;
 import com.pgwaktupagi.cartservice.entity.CartItem;
-import com.pgwaktupagi.cartservice.mapper.ResourceNotFoundException;
+import com.pgwaktupagi.cartservice.exception.ResourceNotFoundException;
 import com.pgwaktupagi.cartservice.repository.CartItemRepository;
 import com.pgwaktupagi.cartservice.repository.CartRepository;
 import com.pgwaktupagi.cartservice.service.ICartItemService;
 import com.pgwaktupagi.cartservice.service.client.UserClient;
-import jakarta.persistence.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
-
 @Service
 @RequiredArgsConstructor
 public class CartItemServiceImpl implements ICartItemService {
@@ -25,24 +21,13 @@ public class CartItemServiceImpl implements ICartItemService {
 
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
-    private final ObjectMapper objectMapper;
     private final UserClient userClient;
 
     public CartItemDTO addToCartItem(CartItemDTO cartItemDTO) {
-//        ResponseEntity<UserResponse> userResponseResponseEntity = userClient.fetchUser(cartItemDTO.getEmail());
-//        UserResponse body = userResponseResponseEntity.getBody();
-//
-//        Long userId = null;
-//        if (body != null && body.getData() != null) {
-//            // Convert 'data' to UserDTO
-//            UserDTO userDTO = objectMapper.convertValue(body.getData(), UserDTO.class);
-//            userId = userDTO.getId();
-//            // Now you can use userDTO as needed
-//            System.out.println("UserDTO: " + userDTO);
-//        }
 
-        ResponseEntity<UserDTO> user = userClient.findByid(cartItemDTO.getUserId());
+        ResponseEntity<UserDTO> user = userClient.findUser(cartItemDTO.getUserId());
 
+        System.out.println("isi user apaan ya: " + user);
         if (user.getBody() == null) {
             throw new ResourceNotFoundException("User","id", Long.toString(user.getBody().getId()));
         }
@@ -81,7 +66,7 @@ public class CartItemServiceImpl implements ICartItemService {
     public CartItemDTO updateCartItem(CartItemDTO cartItemDTO) {
         // Assume customerId is derived from the security context or request
 
-        ResponseEntity<UserDTO> user = userClient.findByid(cartItemDTO.getUserId());
+        ResponseEntity<UserDTO> user = userClient.findUser(cartItemDTO.getUserId());
         Long userId = user.getBody().getId();
 
         Optional<Cart> optionalCart = cartRepository.findByUserId(userId);

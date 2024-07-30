@@ -1,4 +1,4 @@
-package com.pgwaktupagi.cartservice.mapper;
+package com.pgwaktupagi.cartservice.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

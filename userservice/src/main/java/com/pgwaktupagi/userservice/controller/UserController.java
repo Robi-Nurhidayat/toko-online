@@ -25,6 +25,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
@@ -53,8 +54,8 @@ public class UserController {
     }
 
     // ini untuk fetch data by id
-    @GetMapping("/find")
-    public ResponseEntity<User> findByid(@RequestParam Long userId){
+    @GetMapping("/find-user-byid")
+    public ResponseEntity<User> findUser(@RequestParam("userId") Long userId){
         User userById = userService.findById(userId);
 
         return ResponseEntity.status(HttpStatus.OK).body(userById);

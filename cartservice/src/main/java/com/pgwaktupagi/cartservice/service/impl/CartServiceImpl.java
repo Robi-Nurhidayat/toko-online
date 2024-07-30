@@ -1,20 +1,16 @@
 package com.pgwaktupagi.cartservice.service.impl;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.pgwaktupagi.cartservice.dto.CartDTO;
 import com.pgwaktupagi.cartservice.dto.CartItemDTO;
 import com.pgwaktupagi.cartservice.entity.Cart;
 import com.pgwaktupagi.cartservice.entity.CartItem;
-import com.pgwaktupagi.cartservice.mapper.ResourceNotFoundException;
+import com.pgwaktupagi.cartservice.exception.ResourceNotFoundException;
 import com.pgwaktupagi.cartservice.repository.CartItemRepository;
 import com.pgwaktupagi.cartservice.repository.CartRepository;
 import com.pgwaktupagi.cartservice.service.ICartService;
-import jakarta.persistence.*;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -71,61 +67,50 @@ public class CartServiceImpl implements ICartService {
     }
 
     @Override
-    public CartDTO findCartById(Long id) {
-        Optional<Cart> byId = repository.findById(id);
-        Cart cart = null;
+    public CartDTO findCartById(Long cartId) {
+        Optional<Cart> byId = repository.findById(cartId);
+        int quantity = 0;
+        double price =  0.0;
+        Optional<Cart> cart = Optional.empty();
         if (byId.isPresent()) {
             cart = byId;
+        }else {
+            throw new ResourceNotFoundException("Cart","cart_id", Long.toString(cartId));
         }
 
-        List<CartItem> listCartItems = cartItemRepository.findByCartId(cart.getId());
+        List<CartItem> listCartItems = cartItemRepository.findByCartId(cart.get().getId());
         List<CartItemDTO> cartItemDTOList = new ArrayList<>();
         for (var items: listCartItems) {
 
-            // cart item dto
-            private Long id;
-            @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-            private Long userId;
-            private Long cartId;
-            private Long productId;
-            private int quantity;
-            private Double price;
+
+
             cartItemDTOList.add(new CartItemDTO(items.getId(),
                     items.getCart().getUserId(),
+                    items.getCart().getId(),
+                    items.getProductId(),
+                    items.getQuantity(),
+                    items.getPrice()
 
-            ))
+            ));
 
-            // cart item
-            @Id
-            @GeneratedValue(strategy = GenerationType.IDENTITY)
-            private Long id;
+            double tempPrice =  items.getQuantity() * items.getPrice();
+            quantity += items.getQuantity();
+            price += tempPrice;
 
-            @ManyToOne
-            @JoinColumn(name = "cart_id", nullable = false)
-            private Cart cart;
-            private Long productId;
 
-            private int quantity;
 
-            private Double price;
         }
 
 
-        private Long id;
-        private Long userId;
-        private LocalDateTime createdAt;
-        private LocalDateTime updatedAt;
-        private List<CartItemDTO> cartItems;
-        private int totalQuantity;
-        private double totalPrice;
-
-
         CartDTO cartDTO = new CartDTO();
-        cartDTO.setId(cart.getId());
-        cartDTO.setUserId(cart.getUserId());
-        cartDTO.setCreatedAt(cart.getCreatedAt());
-        cartDTO.setUpdatedAt(cart.getUpdatedAt());
+        cartDTO.setId(cart.get().getId());
+        cartDTO.setUserId(cart.get().getUserId());
+        cartDTO.setCreatedAt(cart.get().getCreatedAt());
+        cartDTO.setUpdatedAt(cart.get().getUpdatedAt());
+        cartDTO.setCartItems(cartItemDTOList);
+        cartDTO.setTotalQuantity(quantity);
+        cartDTO.setTotalPrice(price);
 
-        return null;
+        return cartDTO;
     }
 }

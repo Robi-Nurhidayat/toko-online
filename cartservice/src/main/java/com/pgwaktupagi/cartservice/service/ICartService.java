@@ -8,6 +8,6 @@ public interface ICartService {
 
     List<CartDTO> getAllCart();
 
-    CartDTO findCartById(Long id);
+    CartDTO findCartById(Long cartId);
     boolean deleteCart(Long id);
 }
