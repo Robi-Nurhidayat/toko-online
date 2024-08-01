@@ -128,6 +128,20 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseProduct(ProductConstants.STATUS_200, ProductConstants.MESSAGE_200, productDTO));
     }
 
+    @GetMapping("/product/find-by-id")
+    public ResponseEntity<ResponseProduct> findbyId(@RequestParam("productId") String productId) throws IOException {
+        ProductDTO productDTO = productService.findById(productId);
+        log.info(productId);
+        String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
+                .path("/api/image/")
+                .path(productDTO.getImage())
+                .toUriString();
+        productDTO.setImage(productDTO.getImage().substring(productDTO.getImage().indexOf("_")+1));
+        productDTO.setImageUrl(fileDownloadUri);
+
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseProduct(ProductConstants.STATUS_200, ProductConstants.MESSAGE_200, productDTO));
+    }
+
     @Operation(
             summary = "Create New Product REST API",
             description = "REST API to create new Product Toko Online"

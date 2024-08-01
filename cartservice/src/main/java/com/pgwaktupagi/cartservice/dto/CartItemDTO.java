@@ -14,7 +14,7 @@ public class CartItemDTO {
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Long userId;
     private Long cartId;
-    private Long productId;
+    private String productId;
     private int quantity;
     private Double price;
 }

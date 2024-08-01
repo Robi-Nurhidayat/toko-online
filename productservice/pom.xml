@@ -11,6 +11,7 @@
 	<groupId>com.pgwaktupagi</groupId>
 	<artifactId>productservice</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
+	<packaging>jar</packaging>
 	<name>productservice</name>
 	<description>toko online project</description>
 	<url/>
@@ -98,6 +99,15 @@
 							<artifactId>lombok</artifactId>
 						</exclude>
 					</excludes>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>com.google.cloud.tools</groupId>
+				<artifactId>jib-maven-plugin</artifactId>
+				<configuration>
+					<to>
+						<image>robi290899/productservice</image>
+					</to>
 				</configuration>
 			</plugin>
 		</plugins>

@@ -1,10 +1,7 @@
 package com.pgwaktupagi.cartservice.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -14,6 +11,7 @@ import java.util.List;
 @Entity
 @Table(name = "cart_item")
 @Getter @Setter @AllArgsConstructor @NoArgsConstructor
+@Data
 public class CartItem {
 
     @Id
@@ -23,7 +21,7 @@ public class CartItem {
     @ManyToOne
     @JoinColumn(name = "cart_id", nullable = false)
     private Cart cart;
-    private Long productId;
+    private String productId;
 
     private int quantity;
 

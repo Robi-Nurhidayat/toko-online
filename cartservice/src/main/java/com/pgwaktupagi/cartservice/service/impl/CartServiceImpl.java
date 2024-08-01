@@ -113,4 +113,52 @@ public class CartServiceImpl implements ICartService {
 
         return cartDTO;
     }
+
+    @Override
+    public CartDTO findCartByUserId(Long userId) {
+
+        Optional<Cart> byId = repository.findByUserId(userId);
+        int quantity = 0;
+        double price =  0.0;
+        Optional<Cart> cart = Optional.empty();
+        if (byId.isPresent()) {
+            cart = byId;
+        }else {
+            throw new ResourceNotFoundException("User","id", Long.toString(userId));
+        }
+
+        List<CartItem> listCartItems = cartItemRepository.findByCartId(cart.get().getId());
+        List<CartItemDTO> cartItemDTOList = new ArrayList<>();
+        for (var items: listCartItems) {
+
+            cartItemDTOList.add(new CartItemDTO(items.getId(),
+                    items.getCart().getUserId(),
+                    items.getCart().getId(),
+                    items.getProductId(),
+                    items.getQuantity(),
+                    items.getPrice()
+
+            ));
+
+            double tempPrice =  items.getQuantity() * items.getPrice();
+            quantity += items.getQuantity();
+            price += tempPrice;
+
+
+
+        }
+
+
+        CartDTO cartDTO = new CartDTO();
+        cartDTO.setId(cart.get().getId());
+        cartDTO.setUserId(cart.get().getUserId());
+        cartDTO.setCreatedAt(cart.get().getCreatedAt());
+        cartDTO.setUpdatedAt(cart.get().getUpdatedAt());
+        cartDTO.setCartItems(cartItemDTOList);
+        cartDTO.setTotalQuantity(quantity);
+        cartDTO.setTotalPrice(price);
+
+        return cartDTO;
+
+    }
 }

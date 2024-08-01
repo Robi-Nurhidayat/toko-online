@@ -46,9 +46,18 @@ public class CartController {
         return ResponseEntity.status(HttpStatus.OK).body(new Response("200","Success",cartById));
     }
 
+    @GetMapping("/find-by-user-id")
+    public ResponseEntity<Response> findCartByUserId(@RequestParam("userId") Long userId) {
+        CartDTO cartByUserId = cartService.findCartByUserId(userId);
+
+        return ResponseEntity.status(HttpStatus.OK).body(new Response("200","Success",cartByUserId));
+    }
+
     @GetMapping("/cart-info")
     public ResponseEntity<CartInfo> getInfo() {
 
         return new ResponseEntity<>(cartInfo,HttpStatus.OK);
     }
+
+
 }

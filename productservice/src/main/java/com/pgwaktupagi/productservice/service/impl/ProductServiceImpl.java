@@ -28,6 +28,7 @@ import java.util.Optional;
 @Slf4j
 public class ProductServiceImpl implements IProductService {
 
+
     private static final String UPLOAD_DIR = System.getProperty("user.dir") + "/productservice/uploads/";
 
     private final ProductRepository productRepository;
@@ -78,6 +79,23 @@ public class ProductServiceImpl implements IProductService {
         }
 
         return productDTOS;
+    }
+
+    @Override
+    public ProductDTO findById(String productId) {
+//        Product product = productRepository.findByName(name).orElseThrow(
+//                () -> new ResourceNotFoundException("Product", "name", name)
+//        );
+
+        Optional<Product> product = productRepository.findById(productId);
+        if (product.isPresent()) {
+            return ProductMapper.mapToProductDTO(product.get(), new ProductDTO());
+        }else {
+            throw new ResourceNotFoundException("Product","id",productId);
+        }
+
+
+
     }
 
     @Override

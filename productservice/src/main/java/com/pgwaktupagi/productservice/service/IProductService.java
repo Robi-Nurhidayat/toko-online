@@ -17,6 +17,8 @@ public interface IProductService {
 
     ProductDTO updateProduct(String productJson, MultipartFile image) throws IOException;
 
+    ProductDTO findById(String productId);
+
     boolean deleteProduct(String productId);
 
 }

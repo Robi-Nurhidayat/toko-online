@@ -9,5 +9,8 @@ public interface ICartService {
     List<CartDTO> getAllCart();
 
     CartDTO findCartById(Long cartId);
+
+    CartDTO findCartByUserId(Long userId);
+
     boolean deleteCart(Long id);
 }
