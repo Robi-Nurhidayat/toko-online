@@ -8,9 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -31,6 +29,13 @@ public class OrderController {
 
     }
 
+    @PostMapping
+    public ResponseEntity<Response> createOrder(@RequestBody OrderDTO orderDTO) {
+        OrderDTO order = orderService.createOrder(orderDTO);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(new Response("201","success created order",order));
+
+    }
     @GetMapping("/order-info")
     public ResponseEntity<OrderInfo> getInfo() {
         return ResponseEntity.status(HttpStatus.OK).body(orderInfo);

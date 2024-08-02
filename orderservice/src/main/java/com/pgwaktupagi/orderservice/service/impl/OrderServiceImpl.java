@@ -1,6 +1,9 @@
 package com.pgwaktupagi.orderservice.service.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pgwaktupagi.orderservice.dto.CartDTO;
 import com.pgwaktupagi.orderservice.dto.OrderDTO;
+import com.pgwaktupagi.orderservice.dto.ResponseCart;
 import com.pgwaktupagi.orderservice.dto.UserDTO;
 import com.pgwaktupagi.orderservice.entity.Order;
 import com.pgwaktupagi.orderservice.entity.OrderItem;
@@ -8,13 +11,14 @@ import com.pgwaktupagi.orderservice.exception.ResourceNotFoundException;
 import com.pgwaktupagi.orderservice.repository.OrderItemRepository;
 import com.pgwaktupagi.orderservice.repository.OrderRepository;
 import com.pgwaktupagi.orderservice.service.IOrderService;
-import com.pgwaktupagi.orderservice.service.client.UserClient;
+import com.pgwaktupagi.orderservice.service.client.CartClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -22,7 +26,9 @@ public class OrderServiceImpl implements IOrderService {
 
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
-    private final UserClient userClient;
+    private final CartClient cartClient;
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
 
     @Override
     public List<OrderDTO> getAllOrder() {
@@ -57,13 +63,27 @@ public class OrderServiceImpl implements IOrderService {
     @Override
     public OrderDTO createOrder(OrderDTO orderDTO) {
 
-        // find user for set user id
-        ResponseEntity<UserDTO> user = userClient.findByid(orderDTO.getUserId());
-        if (user.getBody() == null) {
-            throw new ResourceNotFoundException("User","id",Long.toString(user.getBody().getId()));
-        }
+        // find cart by cart id
+//        cartClient.findCartById(orderDTO.get)
+//
+//
+//        if (user.getBody() == null) {
+//            throw new ResourceNotFoundException("User","id",Long.toString(user.getBody().getId()));
+//        }
 
-        // find cart for set cartId
+        // find cart by user id
+
+        ResponseEntity<ResponseCart> cartByUserId = cartClient.findCartByUserId(orderDTO.getUserId());
+
+        ResponseCart responseCart = objectMapper.convertValue(cartByUserId.getBody(), ResponseCart.class);
+        CartDTO cart = objectMapper.convertValue(responseCart.getData(), CartDTO.class);
+
+        // karena userId di dalam cartitem null, maka akan di timpa dengan user id saat ini
+        cart.setCartItems(cart.getCartItems().stream()
+                .peek(item -> item.setUserId(cart.getUserId()))
+                .collect(Collectors.toList()));
+
+        System.out.println(cart);
 
         Order order = new Order();
         order.setOrderId(orderDTO.getOrderId());
