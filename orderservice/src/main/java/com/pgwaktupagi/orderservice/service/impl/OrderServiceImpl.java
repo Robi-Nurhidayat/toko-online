@@ -146,6 +146,10 @@ public class OrderServiceImpl implements IOrderService {
         createdOrderDTO.setCreatedTimestamp(createdOrder.getCreatedTimestamp());
         createdOrderDTO.setOrderItems(orderItemListResult);
 
+        if (orderItemListResult != null && createdOrder != null) {
+            cartClient.delete(cart.getId());
+        }
+
         return createdOrderDTO;
     }
 }
