@@ -77,7 +77,9 @@ public class ProductController {
             )
     })
     @GetMapping("/product")
-    public ResponseEntity<ResponseProduct> getAllProduct() {
+    public ResponseEntity<ResponseProduct> getAllProduct(@RequestHeader("tokoonline-correlation-id") String correlationId) {
+
+        System.out.println("ini correlation id : " + correlationId);
         List<ProductDTO> productDTOS = productService.getAllProduct();
 
 
