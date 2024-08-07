@@ -5,6 +5,8 @@ import com.pgwaktupagi.cartservice.dto.CartInfo;
 import com.pgwaktupagi.cartservice.dto.Response;
 import com.pgwaktupagi.cartservice.service.ICartService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CartController {
 
+    private static final Logger log = LoggerFactory.getLogger(CartController.class);
     private final ICartService cartService;
     private final CartInfo cartInfo;
 
@@ -56,7 +59,10 @@ public class CartController {
     @GetMapping("/cart-info")
     public ResponseEntity<CartInfo> getInfo() {
 
-        return new ResponseEntity<>(cartInfo,HttpStatus.OK);
+        log.info("invoked");
+
+        throw new RuntimeException();
+//        return new ResponseEntity<>(cartInfo,HttpStatus.OK);
     }
 
 

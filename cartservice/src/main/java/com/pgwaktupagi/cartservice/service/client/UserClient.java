@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@FeignClient(name = "users", url = "http://localhost:8001/api/users")
+@FeignClient(name = "users", url = "http://localhost:8072/pgwaktupagi/users/api/users", fallback = UserFallback.class)
 public interface UserClient {
     @GetMapping("/find-user-byid")
     public ResponseEntity<UserDTO> findUser(@RequestParam("userId") Long userId);

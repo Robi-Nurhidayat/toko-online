@@ -88,6 +88,7 @@ public class ProductController {
         responseProduct.setMessage("Sukses get all data");
         responseProduct.setData(productDTOS);
         return ResponseEntity.status(HttpStatus.OK).body(responseProduct);
+
     }
 
 

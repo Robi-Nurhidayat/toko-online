@@ -4,7 +4,9 @@ import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 
 @Configuration
@@ -16,7 +18,8 @@ public class RouteConfig {
                 .route(p -> p
                         .path("/pgwaktupagi/products/**")
                         .filters( f -> f.rewritePath("/pgwaktupagi/products/(?<segment>.*)","/${segment}")
-                                .addResponseHeader("X-Response-Time", LocalDateTime.now().toString()))
+                                .addResponseHeader("X-Response-Time", LocalDateTime.now().toString())
+                                .circuitBreaker(config -> config.setName("productsCircuitBreaker").setFallbackUri("forward:/contactSupport")))
                         .uri("lb://PRODUCTS"))
                 .route(p -> p
                         .path("/pgwaktupagi/users/**")
@@ -26,7 +29,10 @@ public class RouteConfig {
                 .route(p -> p
                         .path("/pgwaktupagi/carts/**")
                         .filters( f -> f.rewritePath("/pgwaktupagi/carts/(?<segment>.*)","/${segment}")
-                                .addResponseHeader("X-Response-Time", LocalDateTime.now().toString()))
+                                .addResponseHeader("X-Response-Time", LocalDateTime.now().toString())
+                                .retry(retryConfig -> retryConfig.setRetries(3)
+                                        .setMethods(HttpMethod.GET)
+                                        .setBackoff(Duration.ofMillis(100),Duration.ofMillis(1000),2,true)))
                         .uri("lb://CARTS"))
                 .route(p -> p
                         .path("/pgwaktupagi/orders/**")
