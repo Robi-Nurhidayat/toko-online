@@ -17,7 +17,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: "http://localhost:7000/realms/master/protocol/openid-connect/certs"
+          issuer-uri: "http://localhost:7000/realms/master"
 
 management:
   endpoints:
@@ -47,3 +47,7 @@ resilience4j.circuitbreaker:
       permittedNumberOfCallsInHalfOpenState: 2
       waitDurationInOpenState: 10000
       failureRateThreshold: 50
+
+logging:
+  level:
+    org.springframework.security: DEBUG
