@@ -10,6 +10,7 @@ import com.pgwaktupagi.productservice.repository.ProductRepository;
 import com.pgwaktupagi.productservice.service.IProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -33,6 +34,7 @@ public class ProductServiceImpl implements IProductService {
 
     private final ProductRepository productRepository;
 
+    private final RedisTemplate<String, Object> redisTemplate;
 
 
     @Override
@@ -46,36 +48,43 @@ public class ProductServiceImpl implements IProductService {
             throw e; // Re-throw or handle accordingly
         }
 
-        List<ProductDTO> productDTOS = new ArrayList<>();
 
-        for (var product : products) {
+        List<ProductDTO> productDTOS = (List<ProductDTO>) redisTemplate.opsForValue().get("allProducts");
 
-            ProductDTO productDTO = new ProductDTO(
-                    product.getId(),
-                    product.getName(),
-                    product.getPrice(),
-                    product.getStock(),
-                    product.getDescription(),
-                    product.getCategory(),
-                    product.getImage().substring(product.getImage().indexOf("_")+1),
-                    null,
-                    product.getCreatedAt(),
-                    product.getUpdatedAt()
-            );
+        System.out.println("isi productDTO dri redis : " + productDTOS);
+        if (productDTOS == null) {
+            productDTOS = new ArrayList<>();
+            for (var product : products) {
 
-            // Generate image URL
-            try {
-                String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
-                        .path("/api/image/")
-                        .path(product.getImage())
-                        .toUriString();
-                productDTO.setImageUrl(fileDownloadUri);
-            } catch (Exception e) {
-                log.error("Error generating image URL for product: " + product.getName(), e);
-                productDTO.setImageUrl(null); // Set to null or handle accordingly
+                ProductDTO productDTO = new ProductDTO(
+                        product.getId(),
+                        product.getName(),
+                        product.getPrice(),
+                        product.getStock(),
+                        product.getDescription(),
+                        product.getCategory(),
+                        product.getImage().substring(product.getImage().indexOf("_")+1),
+                        null,
+                        product.getCreatedAt(),
+                        product.getUpdatedAt()
+                );
+
+                // Generate image URL
+                try {
+                    String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
+                            .path("/api/image/")
+                            .path(product.getImage())
+                            .toUriString();
+                    productDTO.setImageUrl(fileDownloadUri);
+                } catch (Exception e) {
+                    log.error("Error generating image URL for product: " + product.getName(), e);
+                    productDTO.setImageUrl(null); // Set to null or handle accordingly
+                }
+
+                productDTOS.add(productDTO);
             }
 
-            productDTOS.add(productDTO);
+            redisTemplate.opsForValue().set("allProducts",productDTOS);
         }
 
         return productDTOS;

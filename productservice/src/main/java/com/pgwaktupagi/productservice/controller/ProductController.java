@@ -23,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -52,10 +53,11 @@ import java.util.List;
 public class ProductController {
 
     private final IProductService productService;
-
     private final ProductInfo productInfo;
     @Autowired
     private ObjectMapper objectMapper;
+
+
 
     private static final String UPLOAD_DIR = System.getProperty("user.dir") + "/productservice/uploads/";
 
