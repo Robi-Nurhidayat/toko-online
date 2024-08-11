@@ -29,6 +29,20 @@ services:
     shm_size: 256mb
     ports:
       - "6379:6379"
+    volumes:
+      - redis_data:/data
+    environment:
+      - REDIS_PASSWORD=yourpassword
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     deploy:
       resources:
         limits:
@@ -37,6 +51,7 @@ services:
         reservations:
           cpus: "0.2"
           memory: 128M
+
 
   DB_CART:
     container_name: toko_online_cart_DB
