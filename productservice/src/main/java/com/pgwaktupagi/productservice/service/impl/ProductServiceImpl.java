@@ -10,6 +10,8 @@ import com.pgwaktupagi.productservice.repository.ProductRepository;
 import com.pgwaktupagi.productservice.service.IProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -210,10 +212,12 @@ public class ProductServiceImpl implements IProductService {
     }
 
 
+    private final CacheManager cacheManager;
 
     @Override
     @Transactional
-    @CachePut(cacheNames="products", key = "#products.id")
+
+    @CacheEvict(cacheNames = "products", allEntries = true)
     public ProductDTO updateProduct(String productJson, MultipartFile image) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         ProductDTO productDTO = objectMapper.readValue(productJson, ProductDTO.class);
