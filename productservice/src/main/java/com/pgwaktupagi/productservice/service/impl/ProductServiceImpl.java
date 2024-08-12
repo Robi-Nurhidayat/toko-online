@@ -10,6 +10,9 @@ import com.pgwaktupagi.productservice.repository.ProductRepository;
 import com.pgwaktupagi.productservice.service.IProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,7 +40,63 @@ public class ProductServiceImpl implements IProductService {
     private final RedisTemplate<String, Object> redisTemplate;
 
 
+//    @Override
+//    @Cacheable(value = "allProducts")
+//    public List<ProductDTO> getAllProduct() {
+//        List<Product> products = new ArrayList<>();
+//
+//        try {
+//            products = productRepository.findAll();
+//        } catch (Exception e) {
+//            log.error("Error retrieving products", e);
+//            throw e; // Re-throw or handle accordingly
+//        }
+//
+//
+//        List<ProductDTO> productDTOS = (List<ProductDTO>) redisTemplate.opsForValue().get("allProducts");
+//
+////        List<ProductDTO> productDTOS = new ArrayList<>();
+//        System.out.println("isi productDTO dri redis : " + productDTOS);
+//        if (productDTOS == null) {
+//            productDTOS = new ArrayList<>();
+//            for (var product : products) {
+//
+//                ProductDTO productDTO = new ProductDTO(
+//                        product.getId(),
+//                        product.getName(),
+//                        product.getPrice(),
+//                        product.getStock(),
+//                        product.getDescription(),
+//                        product.getCategory(),
+//                        product.getImage().substring(product.getImage().indexOf("_")+1),
+//                        null,
+//                        product.getCreatedAt(),
+//                        product.getUpdatedAt()
+//                );
+//
+//                // Generate image URL
+//                try {
+//                    String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
+//                            .path("/api/image/")
+//                            .path(product.getImage())
+//                            .toUriString();
+//                    productDTO.setImageUrl(fileDownloadUri);
+//                } catch (Exception e) {
+//                    log.error("Error generating image URL for product: " + product.getName(), e);
+//                    productDTO.setImageUrl(null); // Set to null or handle accordingly
+//                }
+//
+//                productDTOS.add(productDTO);
+//            }
+//
+//            redisTemplate.opsForValue().set("allProducts",productDTOS);
+//        }
+//
+//        return productDTOS;
+//    }
+
     @Override
+    @Cacheable(cacheNames = "products")
     public List<ProductDTO> getAllProduct() {
         List<Product> products = new ArrayList<>();
 
@@ -48,48 +107,42 @@ public class ProductServiceImpl implements IProductService {
             throw e; // Re-throw or handle accordingly
         }
 
+        List<ProductDTO> productDTOS = new ArrayList<>();
+        for (var product : products) {
 
-        List<ProductDTO> productDTOS = (List<ProductDTO>) redisTemplate.opsForValue().get("allProducts");
+            ProductDTO productDTO = new ProductDTO(
+                    product.getId(),
+                    product.getName(),
+                    product.getPrice(),
+                    product.getStock(),
+                    product.getDescription(),
+                    product.getCategory(),
+                    product.getImage().substring(product.getImage().indexOf("_")+1),
+                    null,
+                    product.getCreatedAt(),
+                    product.getUpdatedAt()
+            );
 
-        System.out.println("isi productDTO dri redis : " + productDTOS);
-        if (productDTOS == null) {
-            productDTOS = new ArrayList<>();
-            for (var product : products) {
-
-                ProductDTO productDTO = new ProductDTO(
-                        product.getId(),
-                        product.getName(),
-                        product.getPrice(),
-                        product.getStock(),
-                        product.getDescription(),
-                        product.getCategory(),
-                        product.getImage().substring(product.getImage().indexOf("_")+1),
-                        null,
-                        product.getCreatedAt(),
-                        product.getUpdatedAt()
-                );
-
-                // Generate image URL
-                try {
-                    String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
-                            .path("/api/image/")
-                            .path(product.getImage())
-                            .toUriString();
-                    productDTO.setImageUrl(fileDownloadUri);
-                } catch (Exception e) {
-                    log.error("Error generating image URL for product: " + product.getName(), e);
-                    productDTO.setImageUrl(null); // Set to null or handle accordingly
-                }
-
-                productDTOS.add(productDTO);
+            // Generate image URL
+            try {
+                String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
+                        .path("/api/image/")
+                        .path(product.getImage())
+                        .toUriString();
+                productDTO.setImageUrl(fileDownloadUri);
+            } catch (Exception e) {
+                log.error("Error generating image URL for product: " + product.getName(), e);
+                productDTO.setImageUrl(null); // Set to null or handle accordingly
             }
 
-            redisTemplate.opsForValue().set("allProducts",productDTOS);
+            productDTOS.add(productDTO);
         }
+
+
+
 
         return productDTOS;
     }
-
     @Override
     public ProductDTO findById(String productId) {
 //        Product product = productRepository.findByName(name).orElseThrow(
@@ -119,6 +172,7 @@ public class ProductServiceImpl implements IProductService {
     }
 
     @Override
+    @CacheEvict(cacheNames = "products", allEntries = true)
     @Transactional
     public ProductDTO createProduct(String productJson, MultipartFile image) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
@@ -156,8 +210,10 @@ public class ProductServiceImpl implements IProductService {
     }
 
 
+
     @Override
     @Transactional
+    @CachePut(cacheNames="products", key = "#products.id")
     public ProductDTO updateProduct(String productJson, MultipartFile image) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         ProductDTO productDTO = objectMapper.readValue(productJson, ProductDTO.class);
@@ -208,6 +264,7 @@ public class ProductServiceImpl implements IProductService {
     }
 
     @Override
+    @CacheEvict(cacheNames = "products", allEntries = true)
     public boolean deleteProduct(String productId) {
         Product product = productRepository.findById(productId).orElseThrow(
                 () -> new ResourceNotFoundException("Product", "id", productId)

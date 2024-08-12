@@ -31,6 +31,7 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 				url = "https://github.com/Robi-Nurhidayat/toko-online"
 		)
 )
+
 public class ProductserviceApplication {
 
 	public static void main(String[] args) {
