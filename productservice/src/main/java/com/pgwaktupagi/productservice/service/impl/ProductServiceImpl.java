@@ -98,7 +98,7 @@ public class ProductServiceImpl implements IProductService {
 //    }
 
     @Override
-    @Cacheable(cacheNames = "products")
+    @Cacheable(cacheNames = "products", key = "")
     public List<ProductDTO> getAllProduct() {
         List<Product> products = new ArrayList<>();
 
@@ -138,6 +138,15 @@ public class ProductServiceImpl implements IProductService {
             }
 
             productDTOS.add(productDTO);
+        }
+
+
+
+        List<ProductDTO> productsInRedis = (List<ProductDTO>) redisTemplate.opsForValue().get("products::SimpleKey []");
+        if (productsInRedis == null) {
+            System.out.println("Tidak ada data di Redis dengan key 'products::SimpleKey []'.");
+        } else {
+            System.out.println("Data ditemukan di Redis: " + productsInRedis);
         }
 
 
