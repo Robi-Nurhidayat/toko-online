@@ -3,6 +3,7 @@ package com.pgwaktupagi.userservice.service.impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pgwaktupagi.userservice.dto.UserDTO;
+import com.pgwaktupagi.userservice.dto.UsersMsgDto;
 import com.pgwaktupagi.userservice.entity.User;
 import com.pgwaktupagi.userservice.exception.ResourceNotFoundException;
 import com.pgwaktupagi.userservice.exception.UserAlreadyExistsException;
@@ -10,7 +11,10 @@ import com.pgwaktupagi.userservice.repository.UserRepository;
 import com.pgwaktupagi.userservice.service.IUserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.stereotype.Service;
@@ -32,6 +36,8 @@ import java.util.Optional;
 public class UserServiceImpl implements IUserService {
 
 
+    private final StreamBridge streamBridge;
+    private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
     @Autowired
     private final UserRepository userRepository;
 
@@ -76,6 +82,14 @@ public class UserServiceImpl implements IUserService {
         }
 
         return userDTOS;
+    }
+
+    // untuk send ke rabbitmq
+    private void sendCommunication(UserDTO userDTO) {
+        var userMsgDto = new UsersMsgDto(userDTO.getUsername(),userDTO.getEmail(),userDTO.getPhoneNumber());
+        System.out.println("Sending communication request for the details: " + userMsgDto);
+        var result = streamBridge.send("sendCommunication-out-0",userMsgDto);
+        logger.info("Is the communication request successfully processed ? : {}",result);
     }
 
     @Override
@@ -132,6 +146,7 @@ public class UserServiceImpl implements IUserService {
         userDTO.setCreatedAt(user.getCreatedAt());
         userDTO.setUpdatedAt(user.getUpdatedAt());
 
+        sendCommunication(userDTO);
         return userDTO;
 
     }

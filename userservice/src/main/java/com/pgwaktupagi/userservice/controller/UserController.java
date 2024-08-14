@@ -5,10 +5,14 @@ import com.pgwaktupagi.userservice.constant.UserConstants;
 import com.pgwaktupagi.userservice.dto.UserDTO;
 import com.pgwaktupagi.userservice.dto.UserInfo;
 import com.pgwaktupagi.userservice.dto.UserResponse;
+import com.pgwaktupagi.userservice.dto.UsersMsgDto;
 import com.pgwaktupagi.userservice.entity.User;
 import com.pgwaktupagi.userservice.service.IUserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
@@ -30,6 +34,7 @@ import java.util.List;
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
 @Slf4j
+
 public class UserController {
 
     private final UserInfo userInfo;
@@ -60,6 +65,8 @@ public class UserController {
 
         return ResponseEntity.status(HttpStatus.OK).body(userById);
     }
+
+
 
     @PostMapping( consumes = {"multipart/form-data"})
     public ResponseEntity<UserResponse> createProduct( @RequestPart("user") String userJson,
