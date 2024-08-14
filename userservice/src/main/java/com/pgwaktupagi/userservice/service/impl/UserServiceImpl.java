@@ -86,7 +86,7 @@ public class UserServiceImpl implements IUserService {
 
     // untuk send ke rabbitmq
     private void sendCommunication(UserDTO userDTO) {
-        var userMsgDto = new UsersMsgDto(userDTO.getUsername(),userDTO.getEmail(),userDTO.getPhoneNumber());
+        var userMsgDto = new UsersMsgDto(userDTO.getId(), userDTO.getUsername(),userDTO.getEmail(),userDTO.getPhoneNumber());
         System.out.println("Sending communication request for the details: " + userMsgDto);
         var result = streamBridge.send("sendCommunication-out-0",userMsgDto);
         logger.info("Is the communication request successfully processed ? : {}",result);
@@ -274,6 +274,22 @@ public class UserServiceImpl implements IUserService {
         return userRepository.findById(userId).orElseThrow(
                 () -> new ResourceNotFoundException("User", "id", Long.toString(userId))
         );
+    }
+
+    @Override
+    public boolean updateCommunication(Long userId) {
+
+        boolean isUpdate = false;
+        if (userId != null) {
+            User user = userRepository.findById(userId).orElseThrow(
+                    () -> new ResourceNotFoundException("User", "id", userId.toString())
+            );
+
+            user.setCommunicationSw(true);
+            userRepository.save(user);
+            isUpdate = true;
+        }
+        return isUpdate;
     }
 
 

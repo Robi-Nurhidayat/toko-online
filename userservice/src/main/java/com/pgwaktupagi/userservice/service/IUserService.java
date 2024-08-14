@@ -14,6 +14,7 @@ public interface IUserService {
     UserDTO update(String userJson, MultipartFile image);
     boolean deleteUser(Long userId);
     User findById(Long userId);
+    boolean updateCommunication(Long userId);
 
 
 }

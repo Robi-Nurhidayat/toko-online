@@ -7,6 +7,7 @@ CREATE TABLE users (
     phone_number VARCHAR(20),
     address TEXT,
     profile VARCHAR(255),
+    communication_sw BOOLEAN,
     created_at TIMESTAMP,
     updated_at TIMESTAMP
 );

@@ -22,8 +22,15 @@ spring:
       max-file-size: 1MB
       max-request-size: 1MB
   cloud:
+    function:
+      definition: updateCommunication
+#      kalau function lebih dari satu, dan independen arti nya kira kirim atau terima masing2 tidak barengan
+#    definition: updateCommunication; sendXX, funcAAa
     stream:
       bindings:
+        updateCommunication-in-0:
+          destination: communication-sent
+          group: ${spring.application.name}
         sendCommunication-out-0:
           destination: send-communication
   rabbitmq:

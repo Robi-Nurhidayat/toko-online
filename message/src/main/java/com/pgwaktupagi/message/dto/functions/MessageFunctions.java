@@ -29,7 +29,7 @@ public class MessageFunctions {
         return usersMsgDto -> {
             log.info("sending sms with details: " + usersMsgDto.toString());
 
-            return 23423423L;
+            return usersMsgDto.userId();
         };
     }
 }

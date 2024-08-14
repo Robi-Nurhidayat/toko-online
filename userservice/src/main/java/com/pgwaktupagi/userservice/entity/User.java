@@ -26,6 +26,8 @@ public class User {
     private String phoneNumber;
     private String address;
     private String profile;
+    @Column(name = "communication_sw")
+    private Boolean communicationSw;
     @CreationTimestamp
     private LocalDateTime createdAt;
     @UpdateTimestamp
