@@ -6,7 +6,20 @@ services:
     restart: always
     shm_size: 256mb
     ports:
-      - "27017:27017"
+      - "27018:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=product
+      - MONGO_INITDB_ROOT_PASSWORD=product
+      - MONGO_INITDB_DATABASE=product
+    volumes:
+      - product_data:/data/db
+    healthcheck:
+      test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping')" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - toko_online
     deploy:
       resources:
         limits:
@@ -15,12 +28,6 @@ services:
         reservations:
           cpus: "0.2"
           memory: 128M
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=product
-      - MONGO_INITDB_ROOT_PASSWORD=product
-      - MONGO_INITDB_DATABASE=product
-    volumes:
-      - product_data:/data/db
 
   REDIS_PRODUCT:
     container_name: toko_online_redis_product_DB
@@ -31,8 +38,6 @@ services:
       - "6370:6379"
     volumes:
       - redis_data:/data
-    environment:
-      - REDIS_PASSWORD=yourpassword
     healthcheck:
       test: [ "CMD", "redis-cli", "ping" ]
       interval: 30s
@@ -43,6 +48,8 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+    networks:
+      - toko_online
     deploy:
       resources:
         limits:
@@ -51,6 +58,7 @@ services:
         reservations:
           cpus: "0.2"
           memory: 128M
+
 
 
   DB_CART:
@@ -60,6 +68,19 @@ services:
     shm_size: 256mb
     ports:
       - "5435:5432"
+    environment:
+      - POSTGRES_PASSWORD=cart
+      - POSTGRES_USER=cart
+      - POSTGRES_DB=cart
+    volumes:
+      - cart_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U user" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - toko_online
     deploy:
       resources:
         limits:
@@ -68,12 +89,6 @@ services:
         reservations:
           cpus: "0.2"
           memory: 128M
-    environment:
-      - POSTGRES_PASSWORD=cart
-      - POSTGRES_USER=cart
-      - POSTGRES_DB=cart
-    volumes:
-      - cart_data:/var/lib/postgresql/data
 
   DB_ORDER:
     container_name: toko_online_order_DB
@@ -82,6 +97,19 @@ services:
     shm_size: 256mb
     ports:
       - "5433:5432"
+    environment:
+      - POSTGRES_PASSWORD=order
+      - POSTGRES_USER=order
+      - POSTGRES_DB=order
+    volumes:
+      - order_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U user" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - toko_online
     deploy:
       resources:
         limits:
@@ -90,12 +118,6 @@ services:
         reservations:
           cpus: "0.2"
           memory: 128M
-    environment:
-      - POSTGRES_PASSWORD=order
-      - POSTGRES_USER=order
-      - POSTGRES_DB=order
-    volumes:
-      - order_data:/var/lib/postgresql/data
 
   DB_USER:
     container_name: toko_online_user_DB
@@ -104,6 +126,19 @@ services:
     shm_size: 256mb
     ports:
       - "5434:5432"
+    environment:
+      - POSTGRES_PASSWORD=user
+      - POSTGRES_USER=user
+      - POSTGRES_DB=user
+    volumes:
+      - user_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U user" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - toko_online
     deploy:
       resources:
         limits:
@@ -112,12 +147,43 @@ services:
         reservations:
           cpus: "0.2"
           memory: 128M
+
+  rabbit:
+    image: rabbitmq:3.13-management
+    hostname: rabbitmq
+    ports:
+      - "5673:5672"
+      - "15673:15672"
+    healthcheck:
+      test: rabbitmq-diagnostics check_port_connectivity
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+    networks:
+      - toko_online
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+        reservations:
+          cpus: "0.2"
+          memory: 128M
+  keycloak:
+    image: quay.io/keycloak/keycloak:22.0.1
+    container_name: keycloak
+    ports:
+      - "7000:8080"
     environment:
-      - POSTGRES_PASSWORD=user
-      - POSTGRES_USER=user
-      - POSTGRES_DB=user
+      KEYCLOAK_ADMIN: "admin"
+      KEYCLOAK_ADMIN_PASSWORD: "admin"
+    command: "start-dev"
     volumes:
-      - user_data:/var/lib/postgresql/data
+      - keycloak_data:/opt/keycloak/data
+    networks:
+      - toko_online
+ 
 
 volumes:
   product_data:
@@ -125,3 +191,17 @@ volumes:
   user_data:
   cart_data:
   redis_data:
+  keycloak_data:
+
+networks:
+  toko_online:
+    name: "toko_online"
+    driver: "bridge"
+
+
+
+
+
+
+
+

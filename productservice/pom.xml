@@ -123,7 +123,7 @@
 				<artifactId>jib-maven-plugin</artifactId>
 				<configuration>
 					<to>
-						<image>robi290899/productservice</image>
+						<image>robi290899/products:v3</image>
 					</to>
 				</configuration>
 			</plugin>

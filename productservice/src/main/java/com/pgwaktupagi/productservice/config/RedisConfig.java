@@ -2,6 +2,7 @@ package com.pgwaktupagi.productservice.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
@@ -21,9 +22,16 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 public class RedisConfig {
 
 
+    @Value("${redisConfig.host}")
+    private String host;
+
+    @Value("${redisConfig.port}")
+    private int port;
+
+
     @Bean
     public JedisConnectionFactory redisConnectionFactory() {
-        RedisStandaloneConfiguration configuration = new RedisStandaloneConfiguration("localhost",6370);
+        RedisStandaloneConfiguration configuration = new RedisStandaloneConfiguration(host,port);
         return new JedisConnectionFactory(configuration);
     }
 

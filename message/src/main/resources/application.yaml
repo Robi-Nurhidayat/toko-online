@@ -15,7 +15,7 @@ spring:
           destination: communication-sent
 
   rabbitmq:
-    host: localhost
+    host: rabbit
     port: 5672
     username: guest
     password: guest

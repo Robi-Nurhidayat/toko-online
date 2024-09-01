@@ -1,0 +1,427 @@
+version: "3.8"
+services:
+  DB_PRODUCT:
+    container_name: toko_online_product_DB
+    image: mongo:6.0-jammy
+    restart: always
+    shm_size: 256mb
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=product
+      - MONGO_INITDB_ROOT_PASSWORD=product
+      - MONGO_INITDB_DATABASE=product
+    volumes:
+      - product_data:/data/db
+    healthcheck:
+      test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping')" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - toko_online
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+        reservations:
+          cpus: "0.2"
+          memory: 128M
+#    extends:
+#      file: common-config.yaml
+#      service: microservice-base-config
+
+  REDIS_PRODUCT:
+    container_name: toko_online_redis_product_DB
+    image: redis:6.2
+    restart: always
+    shm_size: 256mb
+    ports:
+      - "6370:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - toko_online
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+        reservations:
+          cpus: "0.2"
+          memory: 128M
+#    extends:
+#      file: common-config.yaml
+#      service: microservice-base-config
+
+
+
+  DB_CART:
+    container_name: toko_online_cart_DB
+    image: postgres:16-alpine
+    restart: always
+    shm_size: 256mb
+    ports:
+      - "5435:5432"
+    environment:
+      - POSTGRES_PASSWORD=cart
+      - POSTGRES_USER=cart
+      - POSTGRES_DB=cart
+    volumes:
+      - cart_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U user" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - toko_online
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+        reservations:
+          cpus: "0.2"
+          memory: 128M
+
+  DB_ORDER:
+    container_name: toko_online_order_DB
+    image: postgres:16-alpine
+    restart: always
+    shm_size: 256mb
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_PASSWORD=order
+      - POSTGRES_USER=order
+      - POSTGRES_DB=order
+    volumes:
+      - order_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U user" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - toko_online
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+        reservations:
+          cpus: "0.2"
+          memory: 128M
+
+  DB_USER:
+    container_name: toko_online_user_DB
+    image: postgres:14-alpine
+    restart: always
+    shm_size: 256mb
+    ports:
+      - "5434:5432"
+    environment:
+      - POSTGRES_PASSWORD=user
+      - POSTGRES_USER=user
+      - POSTGRES_DB=user
+    volumes:
+      - user_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U user" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - toko_online
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+        reservations:
+          cpus: "0.2"
+          memory: 128M
+
+  rabbit:
+    image: rabbitmq:3.13-management
+    hostname: rabbitmq
+    ports:
+      - "5673:5672"
+      - "15673:15672"
+    healthcheck:
+      test: rabbitmq-diagnostics check_port_connectivity
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+    networks:
+      - toko_online
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+        reservations:
+          cpus: "0.2"
+          memory: 128M
+
+
+  configserver:
+    container_name: configserver-ms
+    image: "robi290899/configserver"
+    restart: always
+    ports:
+      - "8071:8071"
+    depends_on:
+      rabbit:
+        condition: service_healthy
+    healthcheck:
+      test: "curl --fail --silent http://localhost:8071/actuator/health/readiness | grep UP || exit 1"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - toko_online
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+        reservations:
+          cpus: "0.2"
+          memory: 128M
+#    extends:
+#      file: common-config.yaml
+#      service: microservice-base-config
+
+  eurekaserver:
+    image: "robi290899/eurekaserver"
+    container_name: eurekaserver-ms
+    ports:
+      - "8070:8070"
+    depends_on:
+      configserver:
+        condition: service_healthy
+    healthcheck:
+      test: "curl --fail --silent localhost:8070/actuator/health/readiness | grep UP || exit 1"
+      interval: 20s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+    environment:
+      SPRING_APPLICATION_NAME: "eurekaserver"
+      SPRING_PROFILES_ACTIVE: default
+      SPRING_CONFIG_IMPORT: configserver:http://configserver:8071/
+    networks:
+      - toko_online
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+        reservations:
+          cpus: "0.2"
+          memory: 128M
+
+  products:
+    container_name: products-ms
+    image: "robi290899/products:v3"
+    restart: always
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: "curl --fail --silent localhost:8000/actuator/health/readiness | grep UP || exit 1"
+      interval: 20s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+    depends_on:
+      DB_PRODUCT:
+        condition: service_healthy
+      REDIS_PRODUCT:
+        condition: service_healthy
+      configserver:
+        condition: service_healthy
+      eurekaserver:
+        condition: service_healthy
+    environment:
+      SPRING_APPLICATION_NAME: "products"
+      SPRING_PROFILES_ACTIVE: default
+      SPRING_CONFIG_IMPORT: "configserver:http://configserver:8071/"
+      SPRING_DATA_MONGODB_HOST: DB_PRODUCT
+      SPRING_DATA_MONGODB_PORT: 27017
+      SPRING_DATA_MONGODB_DATABASE: product
+      SPRING_DATA_MONGODB_USERNAME: product
+      SPRING_DATA_MONGODB_PASSWORD: product
+      SPRING_DATA_MONGODB_AUTHENTICATION_DATABASE: admin
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8070/eureka/
+    networks:
+      - toko_online
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+        reservations:
+          cpus: "0.2"
+          memory: 128M
+
+
+#  carts:
+#    container_name: carts-ms
+#    image: "robi290899/carts"
+#    restart: always
+#    ports:
+#      - "8002:8002"
+#    depends_on:
+#      DB_CART:
+#        condition: service_healthy
+#      configserver:
+#        condition: service_healthy
+#    environment:
+#      SPRING_APPLICATION_NAME: "carts"
+#    extends:
+#      file: common-config.yaml
+#      service: microservice-configserver-config
+#
+#  orders:
+#    container_name: orders-ms
+#    image: "robi290899/orders"
+#    restart: always
+#    ports:
+#      - "8003:8003"
+#    depends_on:
+#      DB_ORDER:
+#        condition: service_healthy
+#      configserver:
+#        condition: service_healthy
+#    environment:
+#      SPRING_APPLICATION_NAME: "orders"
+#    extends:
+#      file: common-config.yaml
+#      service: microservice-configserver-config
+#
+  users:
+    container_name: users-ms
+    image: "robi290899/users:v3"
+    restart: always
+    healthcheck:
+      test: "curl --fail --silent localhost:8001/actuator/health/readiness | grep UP || exit 1"
+      interval: 20s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+    ports:
+      - "8001:8001"
+    depends_on:
+      DB_USER:
+        condition: service_healthy
+      configserver:
+        condition: service_healthy
+      eurekaserver:
+        condition: service_healthy
+    environment:
+      SPRING_APPLICATION_NAME: "users"
+      SPRING_PROFILES_ACTIVE: default
+      SPRING_CONFIG_IMPORT: "configserver:http://configserver:8071/"
+      SPRING_DATASOURCE_URL: "jdbc:postgresql://DB_USER:5432/user"
+      SPRING_DATASOURCE_USERNAME: "user"
+      SPRING_DATASOURCE_PASSWORD: "user"
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8070/eureka/
+    networks:
+      - toko_online
+
+
+
+  message:
+    image: "robi290899/messages"
+    container_name: message-ms
+    depends_on:
+      rabbit:
+        condition: service_healthy
+    environment:
+      SPRING_RABBITMQ_HOST: "rabbit"
+    networks:
+      - toko_online
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+        reservations:
+          cpus: "0.2"
+          memory: 128M
+
+  gatewayserver:
+    image: "robi290899/gatewayserver:v3"
+    container_name: gatewayserver-ms
+    ports:
+      - "8072:8072"
+    depends_on:
+      products:
+        condition: service_healthy
+      users:
+        condition: service_healthy
+    environment:
+      SPRING_APPLICATION_NAME: "gatewayserver"
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: "http://keycloak:8080/realms/toko/protocol/openid-connect/certs"
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8070/eureka/
+      SPRING_CONFIG_IMPORT: "configserver:http://configserver:8071/"
+    networks:
+      - toko_online
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+        reservations:
+          cpus: "0.2"
+          memory: 128M
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:22.0.1
+    container_name: keycloak
+    ports:
+      - "7000:8080"
+    environment:
+      KEYCLOAK_ADMIN: "admin"
+      KEYCLOAK_ADMIN_PASSWORD: "admin"
+    command: "start-dev"
+    volumes:
+      - keycloak_data:/opt/keycloak/data
+    networks:
+     - toko_online
+
+volumes:
+  product_data:
+  order_data:
+  user_data:
+  cart_data:
+  redis_data:
+  keycloak_data:
+
+networks:
+  toko_online:
+    name: "toko_online"
+    driver: "bridge"
+
+
+
+
+
+
+
+

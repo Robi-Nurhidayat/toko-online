@@ -79,9 +79,9 @@ public class ProductController {
             )
     })
     @GetMapping("/product")
-    public ResponseEntity<ResponseProduct> getAllProduct(@RequestHeader("tokoonline-correlation-id") String correlationId) {
+    public ResponseEntity<ResponseProduct> getAllProduct() {
 
-        System.out.println("ini correlation id : " + correlationId);
+
         List<ProductDTO> productDTOS = productService.getAllProduct();
 
 
@@ -92,6 +92,20 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.OK).body(responseProduct);
 
     }
+//    @GetMapping("/product")
+//    public ResponseEntity<ResponseProduct> getAllProduct(@RequestHeader("tokoonline-correlation-id") String correlationId) {
+//
+//        System.out.println("ini correlation id : " + correlationId);
+//        List<ProductDTO> productDTOS = productService.getAllProduct();
+//
+//
+//        ResponseProduct responseProduct = new ResponseProduct();
+//        responseProduct.setStatusCode(ProductConstants.STATUS_200);
+//        responseProduct.setMessage("Sukses get all data");
+//        responseProduct.setData(productDTOS);
+//        return ResponseEntity.status(HttpStatus.OK).body(responseProduct);
+//
+//    }
 
 
     @Operation(

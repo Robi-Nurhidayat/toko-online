@@ -13,12 +13,11 @@ import com.pgwaktupagi.cartservice.repository.CartRepository;
 import com.pgwaktupagi.cartservice.service.ICartItemService;
 import com.pgwaktupagi.cartservice.service.client.ProductClient;
 import com.pgwaktupagi.cartservice.service.client.UserClient;
-import jakarta.persistence.*;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
 import java.util.Optional;
 @Service
 @RequiredArgsConstructor
@@ -42,7 +41,7 @@ public class CartItemServiceImpl implements ICartItemService {
         ProductDTO productDTO = objectMapper.convertValue(responseProductId.getData(),ProductDTO.class);
         System.out.println("INI BENERAN ISI PRODUCT DTO : " + productDTO );
         if (user.getBody() == null) {
-            throw new ResourceNotFoundException("User","id", Long.toString(user.getBody().getId()));
+                throw new ResourceNotFoundException("User","id", Long.toString(user.getBody().getId()));
         }
 
         Optional<CartItem> cartItemRepositoryByProductId = cartItemRepository.findByProductId(productDTO.getId());
