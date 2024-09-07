@@ -4,16 +4,14 @@ import com.pgwaktupagi.orderservice.entity.OrderItem;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToMany;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.Instant;
 import java.util.List;
 
 @Setter @Getter
 @AllArgsConstructor @NoArgsConstructor
+@ToString
 public class OrderDTO {
 
     private Long orderId;

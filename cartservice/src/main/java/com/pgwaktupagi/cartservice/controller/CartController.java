@@ -31,9 +31,9 @@ public class CartController {
     }
 
     @DeleteMapping
-    public ResponseEntity<Response> delete(@RequestParam Long id){
+    public ResponseEntity<Response> delete(@RequestParam("cartId") Long cartId){
 
-        boolean isDeleted = cartService.deleteCart(id);
+        boolean isDeleted = cartService.deleteCart(cartId);
 
         if (isDeleted) {
             return ResponseEntity.status(HttpStatus.OK).body(new Response("200","Success delete cart",null));

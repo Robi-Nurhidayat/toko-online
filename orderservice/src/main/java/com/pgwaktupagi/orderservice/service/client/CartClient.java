@@ -7,12 +7,12 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@FeignClient(name = "carts", url = "http://localhost:8002/api/carts")
+@FeignClient(name = "carts", url = "http://localhost:8072/pgwaktupagi/carts/api/carts")
 public interface CartClient {
 
     @GetMapping("/find-by-user-id")
     public ResponseEntity<ResponseCart> findCartByUserId(@RequestParam("userId") Long userId);
     @DeleteMapping
-    public ResponseEntity<ResponseCart> delete(@RequestParam Long id);
+    public ResponseEntity<ResponseCart> delete(@RequestParam("cartId") Long cartId);
 
 }
