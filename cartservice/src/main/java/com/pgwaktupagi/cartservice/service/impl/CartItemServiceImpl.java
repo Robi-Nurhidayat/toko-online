@@ -83,7 +83,7 @@ public class CartItemServiceImpl implements ICartItemService {
                cartItem = cartItemRepository.save(cartItem);
                return new CartItemDTO(
                        cartItem.getId(),
-                       null,
+                       user.getBody().getId(),
                        cartItem.getCart().getId(),
                        cartItem.getProductId(),
                        cartItem.getQuantity(),
@@ -102,7 +102,7 @@ public class CartItemServiceImpl implements ICartItemService {
                System.out.println("block jika belum ada product id tapi cart sudah ada");
                return new CartItemDTO(
                        cartItem.getId(),
-                       null,
+                       user.getBody().getId(),
                        cartItem.getCart().getId(),
                        cartItem.getProductId(),
                        cartItem.getQuantity(),
@@ -126,7 +126,7 @@ public class CartItemServiceImpl implements ICartItemService {
             System.out.println("block jika belum ada product id");
             return new CartItemDTO(
                     cartItem.getId(),
-                    null,
+                    user.getBody().getId(),
                     cartItem.getCart().getId(),
                     cartItem.getProductId(),
                     cartItem.getQuantity(),
